@@ -157,13 +157,12 @@ class MergeSort {
 		Comparable[] left = new Comparable[arr.length / 2];		
 	    System.arraycopy(arr, 0, left, 0, left.length);
 	    sort(left);
+	    //swop to disk
 	    
 	    
 	    Comparable[] right = new Comparable[arr.length - left.length];
 	    System.arraycopy(arr, left.length, right, 0, right.length);
 	    sort(right);
-	    
-	    
 	     
 	    merge(left, right, arr);
 	} //sort
