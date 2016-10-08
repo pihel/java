@@ -5,69 +5,71 @@ import java.util.*;
 class Node {
 	Integer val;
 	Node next;
+	Node root;
  
 	Node(Integer x) {
 		val = x;
 		next = null;
 	}
-}
-
-class InsertSortList {
 	
-	public static Node arr2node(Integer[] arr) {
-		Node root = null;
+	public Node(Integer[] arr) {
+		root = null;
 		Node prev = null;
 		for(int i = arr.length - 1; i >= 0; i--) {
-		    //последний элемент с конца - голова списка
+		    //РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚ СЃ РєРѕРЅС†Р° - РіРѕР»РѕРІР° СЃРїРёСЃРєР°
 			root = new Node(arr[i]);
-			//предыдущий элемент в цикле - следующий в списке
+			//РїСЂРµРґС‹РґСѓС‰РёР№ СЌР»РµРјРµРЅС‚ РІ С†РёРєР»Рµ - СЃР»РµРґСѓСЋС‰РёР№ РІ СЃРїРёСЃРєРµ
 			root.next = prev;
 			prev = root;
 		}
 		/*for(int i = 0; i < arr.length; i++) {
 			Node n = new Node(arr[i]);
 			if(root == null) {
-				//первый элемент - указатель на голову списка
+				//РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚ - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РіРѕР»РѕРІСѓ СЃРїРёСЃРєР°
 				root = n;
 			} else {
-				//ставим следующего для предыдущего
+				//СЃС‚Р°РІРёРј СЃР»РµРґСѓСЋС‰РµРіРѕ РґР»СЏ РїСЂРµРґС‹РґСѓС‰РµРіРѕ
 				prev.next = n;
 			}
-			//текущий = предыдущий для след. итерации цикла
+			//С‚РµРєСѓС‰РёР№ = РїСЂРµРґС‹РґСѓС‰РёР№ РґР»СЏ СЃР»РµРґ. РёС‚РµСЂР°С†РёРё С†РёРєР»Р°
 			prev = n;
 		}*/
-		return root;
-	}
+	} //Node
 	
-	public static void printList(Node r) {
-		while(r != null) {
-			System.out.print(r.val + ", ");
-			r = r.next;
+	public void print() {
+		root = this;
+		while(root != null) {
+			System.out.print(root.val + ", ");
+			root = root.next;
 		}
-	}
+	} //print
+}
+
+class InsertSortList {
 	
 	public static Node sort(Node root) {
-		if(root == null || root.next == null) return root;
+		root = root.root;
+		if(root == null) return root;
 		
-		//новый отсортированный список
+		//РЅРѕРІС‹Р№ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє
 		Node sort_node = new Node(root.val);
 		
 		Node pointer = root.next;
 		
-		//идем вперед
+		//РёРґРµРј РІРїРµСЂРµРґ
 		while(pointer != null) {
 			Node inner_node = sort_node;
 			Node next = pointer.next;
 			
-			//если элемент меньше начала, то это наше новое начало
+			//РµСЃР»Рё СЌР»РµРјРµРЅС‚ РјРµРЅСЊС€Рµ РЅР°С‡Р°Р»Р°, С‚Рѕ СЌС‚Рѕ РЅР°С€Рµ РЅРѕРІРѕРµ РЅР°С‡Р°Р»Рѕ
 			if(pointer.val <= sort_node.val) {
 				Node swp = sort_node;
 				sort_node = pointer;
 				sort_node.next = swp;
 			} else {
-				//иначе идем с начала списка еще раз
+				//РёРЅР°С‡Рµ РёРґРµРј СЃ РЅР°С‡Р°Р»Р° СЃРїРёСЃРєР° РµС‰Рµ СЂР°Р·
 				while(inner_node.next != null) {
-					//находим место вставки
+					//РЅР°С…РѕРґРёРј РјРµСЃС‚Рѕ РІСЃС‚Р°РІРєРё
 					if (pointer.val > inner_node.val && pointer.val <= inner_node.next.val) {
 						Node oldNext = inner_node.next;
 						inner_node.next = pointer;
@@ -76,7 +78,7 @@ class InsertSortList {
 					inner_node = inner_node.next;
 				}
 				
-				//дошли доконца - это наш новый конец
+				//РґРѕС€Р»Рё РґРѕРєРѕРЅС†Р° - СЌС‚Рѕ РЅР°С€ РЅРѕРІС‹Р№ РєРѕРЅРµС†
 				if (inner_node.next == null && pointer.val > inner_node.val) {
 					inner_node.next = pointer;
 					pointer.next = null;
@@ -87,8 +89,8 @@ class InsertSortList {
 		}
 		
 		return sort_node;
-	}
-}
+	} //sort
+} //InsertSortList
 
 class Tree<T extends Comparable<T>> {
 	public T val;
@@ -138,37 +140,33 @@ class Tree<T extends Comparable<T>> {
 		   right.traverse();
 	   }
    }
-}
+} //Tree
 
 class MergeSort {
 	
-	int pga_size;
-	
-	MergeSort(int _pga_size) {
-		pga_size = _pga_size;
+	@SuppressWarnings("rawtypes") 
+	protected boolean isSortArr(Comparable[] arr) {
+		if(arr.length <= 1) return true;
+		return false;
 	}
 	
 	@SuppressWarnings("rawtypes") 
 	public void sort(Comparable[] arr) {
-		if(arr.length <= pga_size) {
-			if(pga_size == 1) {
-				return;
-			} else {
-				OracleSort.QSort(arr, 0, arr.length - 1);
-				return;
-			}
-		}
+		if(isSortArr(arr)) return;
 		
-		Comparable[] left = new Comparable[arr.length / 2];
-		Comparable[] right = new Comparable[arr.length - left.length];
+		Comparable[] left = new Comparable[arr.length / 2];		
 	    System.arraycopy(arr, 0, left, 0, left.length);
-	    System.arraycopy(arr, left.length, right, 0, right.length);
-	     
 	    sort(left);
+	    
+	    
+	    Comparable[] right = new Comparable[arr.length - left.length];
+	    System.arraycopy(arr, left.length, right, 0, right.length);
 	    sort(right);
+	    
+	    
 	     
 	    merge(left, right, arr);
-	}
+	} //sort
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" }) 
 	private void merge(Comparable[] left, Comparable[] right, Comparable[] arr) {
@@ -189,138 +187,178 @@ class MergeSort {
 	    
 	    System.arraycopy(left, iFirst, arr, iMerged, left.length - iFirst);
 	    System.arraycopy(right, iSecond, arr, iMerged, right.length - iSecond);
-	}
+	} //merge
+} //MergeSort
+
+class Sorts {
+	//РїРµСЂРµРјРµС‰Р°РµРј СЃР°РјС‹Р№ Р±РѕР»СЊС€РѕР№ СЌР»РµРјРµРЅС‚ РІ РєРѕРЅРµС†, СѓРјРµРЅСЊС€Р°РµРј СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР° РЅР° 1, РїРѕРІС‚РѕСЂСЏРµРј
+		public static <T extends Comparable<T>> void bubleSort(T[] arr) {		
+			for(int i = 0; i < arr.length - 1; i++) {
+				boolean sorted = true;
+				for(int j = 0; j < arr.length - i - 1; j++) {
+					if(arr[j].compareTo(arr[j+1]) > 0) {
+						T buf = arr[j];
+						arr[j] = arr[j+1];
+						arr[j+1] = buf;
+						
+						sorted = false;
+					}
+				}
+				if(sorted) {
+					break;
+				}
+			}
+		} //bubleSort
+		
+		//РёРґРµРј РІРїРµСЂРµРґ, С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ Р·Р°РїРёСЃС‹РІР°РµРј РІ Р±СѓС„РµСЂРЅСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ, РїРѕС‚РѕРј РЅР°Р·Р°Рґ РґРѕ СЌР»РµРјРµРЅС‚Р° РјРµРЅСЊС€Рµ РЅР°С€РµРіРѕ, СЃРјРµС‰Р°РµРј СЌР»РµРјРµРЅС‚С‹ РЅР° 1 РІРїСЂР°РІРѕ Р·Р°РјРµС‰Р°СЏ С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚
+		//С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ РІСЃС‚Р°РІР»СЏРµРј РЅР° РјРµСЃС‚Рѕ РјРµРЅСЊС€Рµ РЅР°С€РµРіРѕ + 1
+		public static <T extends Comparable<T>> void insertSort(T[] arr) {
+			for(int i = 0; i < arr.length; i++) {
+				T val = arr[i];
+				int key = i - 1;
+				while(key >= 0 && val.compareTo(arr[key]) < 0) {
+					arr[key+1] = arr[key];
+					key--;
+				}
+				arr[key+1] = val;
+			}
+		} //insertSort
+		
+		public static <T extends Comparable<T>> void QSort(T[] arr, int l, int r) {
+			int i = l;
+			int j = r;
+			T c = arr[l + ( r - l ) / 2];
+			while(i < j) {
+				while(arr[i].compareTo(c) < 0) {
+					i++;
+				}
+				while(arr[j].compareTo(c) > 0) {
+					j--;
+				}
+				if(i <= j) {
+					T t = arr[j];
+					arr[j] = arr[i];
+					arr[i] = t;
+					i++;
+					j--;
+				}
+			}
+			if(l < j) {
+				QSort(arr, l, j);
+			}
+			if(r > i) {
+				QSort(arr, i, r);
+			}
+		} //QSort
+		
+		public static <T extends Integer> void radixSortUInt(T[] arr) {
+			final int RADIX = 10;
+			List<T>[] bucket = new ArrayList[RADIX];
+			for (int i = 0; i < bucket.length; i++) {
+			  bucket[i] = new ArrayList<T>();
+			}
+			boolean maxLength = false;
+			int rank_val = -1;
+			int placement = 1;
+			
+			while (!maxLength) {
+			    maxLength = true;
+			    
+			    for (int i = 0; i < arr.length; i++) {
+			    	rank_val = arr[i] / placement;
+				    bucket[rank_val % RADIX].add(arr[i]);
+				    if (maxLength && rank_val > 0) {
+				    	maxLength = false;
+				    }
+			    }
+			    
+			    int a = 0;
+			    for (int b = 0; b < RADIX; b++) {
+			    	for (int i = 0; i < bucket[b].size(); i++) {
+			    		arr[a++] = bucket[b].get(i);
+			    	}
+			    	bucket[b].clear();
+			    }
+			    placement *= RADIX;
+			}
+			  
+		} //radixSortUInt
+		
+	    public static <T extends Comparable<T>> int binary_search(T[] arr, T val) {
+	        int lo = 0;
+	        int hi = arr.length - 1;
+	        while (lo <= hi) {
+	            int mid = lo + (hi - lo) / 2;
+	            
+	            if (val.compareTo(arr[mid]) < 0) {
+	            	hi = mid - 1;
+	            } else if (val.compareTo(arr[mid]) > 0) {
+	            	lo = mid + 1;
+	            } else {
+	            	return mid;
+	            }
+	        }
+	        return -1;
+	    } //binary_search
 }
 
 
-public class OracleSort {
+public class OracleSort extends MergeSort {
+	int sort_area_size = 1;
+	int avg_key_size = 0;
 	
-	//перемещаем самый большой элемент в конец, уменьшаем размер массива на 1, повторяем
-	public static <T extends Comparable<T>> void bubleSort(T[] arr) {		
-		for(int i = 0; i < arr.length - 1; i++) {
-			boolean sorted = true;
-			for(int j = 0; j < arr.length - i - 1; j++) {
-				if(arr[j].compareTo(arr[j+1]) > 0) {
-					T buf = arr[j];
-					arr[j] = arr[j+1];
-					arr[j+1] = buf;
-					
-					sorted = false;
-				}
-			}
-			if(sorted) {
-				break;
-			}
-		}
-	}
+	OracleSort(int _sort_area_size, int _avg_key_size) {
+		sort_area_size = _sort_area_size;
+		avg_key_size = _avg_key_size;
+	} //OracleSort
 	
-	//идем вперед, текущий элемент записываем в буферную переменную, потом назад до элемента меньше нашего, смещаем элементы на 1 вправо замещая текущий элемент
-	//текущий элемент вставляем на место меньше нашего + 1
-	public static <T extends Comparable<T>> void insertSort(T[] arr) {
-		for(int i = 0; i < arr.length; i++) {
-			T val = arr[i];
-			int key = i - 1;
-			while(key >= 0 && val.compareTo(arr[key]) < 0) {
-				arr[key+1] = arr[key];
-				key--;
+	protected boolean isSortArr(Comparable[] arr) {
+		
+		if(arr.length <= sort_area_size) {		
+			
+			if( arr[0].getClass() == Integer.class && avg_key_size > 0 && avg_key_size < Math.log(arr.length) ) {
+				/*System.out.println(avg_key_size);
+				System.out.println(Math.log(arr.length));
+				System.out.println(arr[0].getClass());*/
+				
+				Integer[] _arr = new Integer[arr.length]; //РєР°Рє РїСЂРёРІРµСЃС‚Рё Comparable Рє Integer?
+				
+				System.arraycopy(arr, 0, _arr, 0, arr.length);
+				Sorts.radixSortUInt(_arr);
+				System.arraycopy(_arr, 0, arr, 0, arr.length);
+				_arr = null;
+			} else {
+				Sorts.QSort(arr, 0, arr.length-1);
 			}
-			arr[key+1] = val;
+			return true;
 		}
-	}
-	
-	public static <T extends Comparable<T>> void QSort(T[] arr, int l, int r) {
-		int i = l;
-		int j = r;
-		T c = arr[l + ( r - l ) / 2];
-		while(i < j) {
-			while(arr[i].compareTo(c) < 0) {
-				i++;
-			}
-			while(arr[j].compareTo(c) > 0) {
-				j--;
-			}
-			if(i <= j) {
-				T t = arr[j];
-				arr[j] = arr[i];
-				arr[i] = t;
-				i++;
-				j--;
-			}
-		}
-		if(l < j) {
-			QSort(arr, l, j);
-		}
-		if(r > i) {
-			QSort(arr, i, r);
-		}
-	}
-	
-    public static int indexOf(int[] a, int key) {
-        int lo = 0;
-        int hi = a.length - 1;
-        while (lo <= hi) {
-            // Key is in a[lo..hi] or not present.
-            int mid = lo + (hi - lo) / 2;
-            if      (key < a[mid]) hi = mid - 1;
-            else if (key > a[mid]) lo = mid + 1;
-            else return mid;
-        }
-        return -1;
-    }
-	
-	public static void radixSortUInt(Integer[] arr) {
-		final int RADIX = 10;
-		  // declare and initialize bucket[]
-		  List<Integer>[] bucket = new ArrayList[RADIX];
-		  for (int i = 0; i < bucket.length; i++) {
-		    bucket[i] = new ArrayList<Integer>();
-		  }
-		 
-		  // sort
-		  boolean maxLength = false;
-		  int tmp = -1, placement = 1;
-		  while (!maxLength) {
-		    maxLength = true;
-		    // split input between lists
-		    for (Integer i : arr) {
-		      tmp = i / placement;
-		      bucket[tmp % RADIX].add(i);
-		      if (maxLength && tmp > 0) {
-		        maxLength = false;
-		      }
-		    }
-		    // empty lists into input array
-		    int a = 0;
-		    for (int b = 0; b < RADIX; b++) {
-		      for (Integer i : bucket[b]) {
-		    	  arr[a++] = i;
-		      }
-		      bucket[b].clear();
-		    }
-		    // move to next digit
-		    placement *= RADIX;
-		  }
-	}
+		return false;
+	} //isSortArr
 
 	public static void main(String[] args) {
-		Integer arr[] = {2, 6, 3, 5, 1, /*-1,*/ 7, 8, 0};
+		Integer arr[] = {2, 6, 3, 5, 1, /*-1,*/ 7, 8, 0, 27, 17, 99, 13, 1, 7};
 		
 		System.out.println(Arrays.toString(arr));
 		
 		//Arrays.sort(arr);
-		//bubleSort(arr);
-		//insertSort(arr);
-		//InsertSortList.printList( InsertSortList.sort( InsertSortList.arr2node(arr) ) );
+		//Sorts.bubleSort(arr);
+		//Sorts.insertSort(arr);
+		//InsertSortList.sort( new Node(arr) ).print();
 		
 		//(new Tree(arr)).traverse();
 		
-		//QSort(arr, 0, arr.length-1);
+		//Sorts.QSort(arr, 0, arr.length-1);
 		
-		//( new MergeSort(5) ).sort(arr);
+		//( new MergeSort() ).sort(arr);
 		
-		radixSortUInt(arr);
+		//Sorts.radixSortUInt(arr);
+		
+		new OracleSort(5, 2).sort(arr);
 		
 		System.out.println(Arrays.toString(arr));
+		
+		System.out.println("7=" + Sorts.binary_search(arr, 7));
+		System.out.println("73=" + Sorts.binary_search(arr, 73));
 	}
 
 }
