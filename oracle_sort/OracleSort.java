@@ -190,115 +190,144 @@ class MergeSort {
 } //MergeSort
 
 class Sorts {
-	//перемещаем самый большой элемент в конец, уменьшаем размер массива на 1, повторяем
-		public static <T extends Comparable<T>> void bubleSort(T[] arr) {		
-			for(int i = 0; i < arr.length - 1; i++) {
-				boolean sorted = true;
-				for(int j = 0; j < arr.length - i - 1; j++) {
-					if(arr[j].compareTo(arr[j+1]) > 0) {
-						T buf = arr[j];
-						arr[j] = arr[j+1];
-						arr[j+1] = buf;
-						
-						sorted = false;
-					}
-				}
-				if(sorted) {
-					break;
-				}
-			}
-		} //bubleSort
-		
-		//идем вперед, текущий элемент записываем в буферную переменную, потом назад до элемента меньше нашего, смещаем элементы на 1 вправо замещая текущий элемент
-		//текущий элемент вставляем на место меньше нашего + 1
-		public static <T extends Comparable<T>> void insertSort(T[] arr) {
-			for(int i = 0; i < arr.length; i++) {
-				T val = arr[i];
-				int key = i - 1;
-				while(key >= 0 && val.compareTo(arr[key]) < 0) {
-					arr[key+1] = arr[key];
-					key--;
-				}
-				arr[key+1] = val;
-			}
-		} //insertSort
-		
-		public static <T extends Comparable<T>> void QSort(T[] arr, int l, int r) {
-			int i = l;
-			int j = r;
-			T c = arr[l + ( r - l ) / 2];
-			while(i < j) {
-				while(arr[i].compareTo(c) < 0) {
-					i++;
-				}
-				while(arr[j].compareTo(c) > 0) {
-					j--;
-				}
-				if(i <= j) {
-					T t = arr[j];
-					arr[j] = arr[i];
-					arr[i] = t;
-					i++;
-					j--;
-				}
-			}
-			if(l < j) {
-				QSort(arr, l, j);
-			}
-			if(r > i) {
-				QSort(arr, i, r);
-			}
-		} //QSort
-		
-		public static <T extends Integer> void radixSortUInt(T[] arr) {
-			final int RADIX = 10;
-			List<T>[] bucket = new ArrayList[RADIX];
-			for (int i = 0; i < bucket.length; i++) {
-			  bucket[i] = new ArrayList<T>();
-			}
-			boolean maxLength = false;
-			int rank_val = -1;
-			int placement = 1;
+	/*
+	Сортировка пузырьком:
+		* Сложность: N*N/2
+		* Доп. Память: нет
+		* Общий смысл:
+			** перемещаем наибольший элемент вправо
+			** повторяем еще раз, но не доходим до наибольшего элемента (отсортированных)
+			** повторяем, пока все наибольшие элементы не будут справа
 			
-			while (!maxLength) {
-			    maxLength = true;
-			    
-			    for (int i = 0; i < arr.length; i++) {
-			    	rank_val = arr[i] / placement;
-				    bucket[rank_val % RADIX].add(arr[i]);
-				    if (maxLength && rank_val > 0) {
-				    	maxLength = false;
-				    }
-			    }
-			    
-			    int a = 0;
-			    for (int b = 0; b < RADIX; b++) {
-			    	for (int i = 0; i < bucket[b].size(); i++) {
-			    		arr[a++] = bucket[b].get(i);
-			    	}
-			    	bucket[b].clear();
-			    }
-			    placement *= RADIX;
+	*/
+	public static <T extends Comparable<T>> void bubleSort(T[] arr) {
+		//проходим по массиву
+		for(int i = 0; i < arr.length - 1; i++) {
+			//флаг отсортированности = не сделано ни одного обмена
+			boolean sorted = true;
+			
+			//проходим от начала массива до конца - i с поиском элемента для обмена
+			//все что правее конец-i уже отсортированно
+			for(int j = 0; j < arr.length - i - 1; j++) {
+				//сравниваем текущий элемент с соседним: больший элемент смещаем вправо
+				//за каждый проход наибольший элемент уходит в крайнее правое положение = конец-i
+				if(arr[j].compareTo(arr[j+1]) > 0) {
+					T buf = arr[j];
+					arr[j] = arr[j+1];
+					arr[j+1] = buf;
+					
+					//если сделали хоть один обмен, то массив еще не отсортирован
+					sorted = false;
+				}
 			}
-			  
-		} //radixSortUInt
+			//если не было ни одного обмена за целый проход, значит массив отсортирован - выходим
+			if(sorted) {
+				break;
+			}
+		}
+	} //bubleSort
+	
+	/*
+	 Сортировка вставками: 
+	 	* Сложность: N*N
+	 	* Доп. память: нет
+	 	* Общий смысл:
+	 		** движеся вправо
+	 		** для каждой итерации: обратно влево, пока не найдем элемент меньше текущего
+	 		** попутно смещаем все элементы больше текущего вправо на 1
+	 */
+	public static <T extends Comparable<T>> void insertSort(T[] arr) {
+		//движемся по массиву вправо
+		for(int i = 0; i < arr.length; i++) {
+			T val = arr[i];
+			int key = i - 1;
+			//движемся по массиву влево, пока не найдем элемент меньше текущего
+			//все элементы > текущего смещаем вправа на один			
+			while(key >= 0 && val.compareTo(arr[key]) < 0) {
+				arr[key+1] = arr[key];
+				key--;
+			}
+			//в найденное место: < текущего или первый (key=0), вставляем элемент i операции
+			arr[key+1] = val;
+		}
+	} //insertSort
+	
+	public static <T extends Comparable<T>> void QSort(T[] arr, int l, int r) {
+		int i = l;
+		int j = r;
+		T c = arr[l + ( r - l ) / 2];
+		while(i < j) {
+			while(arr[i].compareTo(c) < 0) {
+				i++;
+			}
+			while(arr[j].compareTo(c) > 0) {
+				j--;
+			}
+			if(i <= j) {
+				T t = arr[j];
+				arr[j] = arr[i];
+				arr[i] = t;
+				i++;
+				j--;
+			}
+		}
+		if(l < j) {
+			QSort(arr, l, j);
+		}
+		if(r > i) {
+			QSort(arr, i, r);
+		}
+	} //QSort
+	
+	public static <T extends Integer> void radixSortUInt(T[] arr) {
+		final int RADIX = 10;
+		List<T>[] bucket = new ArrayList[RADIX];
+		for (int i = 0; i < bucket.length; i++) {
+		  bucket[i] = new ArrayList<T>();
+		}
+		boolean maxLength = false;
+		int rank_val = -1;
+		int placement = 1;
 		
-	    public static <T extends Comparable<T>> int binary_search(T[] arr, T val) {
-	        int lo = 0;
-	        int hi = arr.length - 1;
-	        while (lo <= hi) {
-	            int mid = lo + (hi - lo) / 2;
-	            
-	            if (val.compareTo(arr[mid]) < 0) {
-	            	hi = mid - 1;
-	            } else if (val.compareTo(arr[mid]) > 0) {
-	            	lo = mid + 1;
-	            } else {
-	            	return mid;
-	            }
-	        }
-	        return -1;
-	    } //binary_search
+		while (!maxLength) {
+		    maxLength = true;
+		    
+		    for (int i = 0; i < arr.length; i++) {
+		    	rank_val = arr[i] / placement;
+			    bucket[rank_val % RADIX].add(arr[i]);
+			    if (maxLength && rank_val > 0) {
+			    	maxLength = false;
+			    }
+		    }
+		    
+		    int a = 0;
+		    for (int b = 0; b < RADIX; b++) {
+		    	for (int i = 0; i < bucket[b].size(); i++) {
+		    		arr[a++] = bucket[b].get(i);
+		    	}
+		    	bucket[b].clear();
+		    }
+		    placement *= RADIX;
+		}
+		  
+	} //radixSortUInt
+	
+    public static <T extends Comparable<T>> int binary_search(T[] arr, T val) {
+        int lo = 0;
+        int hi = arr.length - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            
+            if (val.compareTo(arr[mid]) < 0) {
+            	hi = mid - 1;
+            } else if (val.compareTo(arr[mid]) > 0) {
+            	lo = mid + 1;
+            } else {
+            	return mid;
+            }
+        }
+        return -1;
+    } //binary_search
 }
 
 
