@@ -298,22 +298,45 @@ class Sorts {
 		}
 	} //QSort
 	
+	/*
+	 Поразрядная сортировка: 
+	 	* Сложность: N*K
+	 		** где K число разрядов в сортиуемом элементе
+	 	* Доп. память: дополнительный массив = входному
+	 	* Минусы/Плюсы:
+	 	* -/+ быстрей, если k < log(n) и дольше в других случаях
+	 	* - разный размер хэш массива для разных типов данных
+	 	* Общий смысл:
+	 		** 
+	 */
 	public static <T extends Integer> void radixSortUInt(T[] arr) {
+		
+		//хэш массив из 10 элементов для 10-ричного числа
 		final int RADIX = 10;
 		List<T>[] bucket = new ArrayList[RADIX];
 		for (int i = 0; i < bucket.length; i++) {
-		  bucket[i] = new ArrayList<T>();
+			//список чисел, содержащих нужно число в разряде
+			bucket[i] = new ArrayList<T>();
 		}
+		
+		//признак, что все разряды перебраны
 		boolean maxLength = false;
+		//значение в разряде
 		int rank_val = -1;
+		//номер разряда
 		int placement = 1;
 		
+		//пока не перебраны все разряды
 		while (!maxLength) {
 		    maxLength = true;
 		    
+		    //для каждого элемента массива
 		    for (int i = 0; i < arr.length; i++) {
+		    	//добавляем элемент в массив по значению в разряде
 		    	rank_val = arr[i] / placement;
 			    bucket[rank_val % RADIX].add(arr[i]);
+			    
+			    //если в разряде не пусто, то ставим флаг повторения цикла
 			    if (maxLength && rank_val > 0) {
 			    	maxLength = false;
 			    }
