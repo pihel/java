@@ -1,6 +1,8 @@
 package oracle_sort;
 
 import java.util.*;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 
 /*
  * Односвязный список
@@ -454,10 +456,18 @@ class Sorts {
     } //binary_search
 }
 
-
+/*
+ * Комбинированная сортировка: слиянием + быстрая + поразрядная
+ * 
+ * */
 public class OracleSort extends MergeSort {
+	//размер памяти под сортировку
 	int sort_area_size = 1;
+	//размер ключа
 	int avg_key_size = 0;
+	
+	
+	final double log10_2 = Math.log(2);
 	
 	OracleSort(int _sort_area_size, int _avg_key_size) {
 		sort_area_size = _sort_area_size;
@@ -466,12 +476,11 @@ public class OracleSort extends MergeSort {
 	
 	protected boolean isSortArr(Comparable[] arr) {
 		
+		//если после разбиения массива размер меньше размера под сортировку
 		if(arr.length <= sort_area_size) {		
 			
-			if( arr[0].getClass() == Integer.class && avg_key_size > 0 && avg_key_size < Math.log(arr.length) ) {
-				/*System.out.println(avg_key_size);
-				System.out.println(Math.log(arr.length));
-				System.out.println(arr[0].getClass());*/
+			//если Integer и размер ключа меньше log2(Т), то делаем поразрядную сортировку
+			if( arr[0].getClass() == Integer.class && avg_key_size > 0 && avg_key_size < ( Math.log(arr.length) / log10_2 ) ) {
 				
 				Integer[] _arr = new Integer[arr.length]; //как привести Comparable к Integer?
 				
@@ -480,6 +489,7 @@ public class OracleSort extends MergeSort {
 				System.arraycopy(_arr, 0, arr, 0, arr.length);
 				_arr = null;
 			} else {
+				//иначе быструю сортировку
 				Sorts.QSort(arr, 0, arr.length-1);
 			}
 			return true;
@@ -488,7 +498,16 @@ public class OracleSort extends MergeSort {
 	} //isSortArr
 
 	public static void main(String[] args) {
-		Integer arr[] = {2, 6, 3, 5, 1, /*-1,*/ 7, 8, 0, 27, 17, 99, 13, 1, 7};
+		
+		
+		JUnitCore runner = new JUnitCore();
+        Result result = runner.run(OracleSortTest.class);
+        System.out.println("run tests: " + result.getRunCount());
+        System.out.println("failed tests: " + result.getFailureCount());
+        System.out.println("ignored tests: " + result.getIgnoreCount());
+        System.out.println("success: " + result.wasSuccessful());
+		
+		/*Integer arr[] = {2, 6, 3, 5, 1, 7, 8, 0, 27, 17, 99, 13, 1, 7};
 		
 		System.out.println(Arrays.toString(arr));
 		
@@ -510,7 +529,7 @@ public class OracleSort extends MergeSort {
 		System.out.println(Arrays.toString(arr));
 		
 		System.out.println("7=" + Sorts.binary_search(arr, 7));
-		System.out.println("73=" + Sorts.binary_search(arr, 73));
+		System.out.println("73=" + Sorts.binary_search(arr, 73));*/
 	}
 
 }
