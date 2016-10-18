@@ -476,7 +476,7 @@ public class OracleSort extends MergeSort {
 	
 	protected boolean isSortArr(Comparable[] arr) {
 		
-		if(arr.length < 1) return true;
+		if(arr.length < 2) return true;
 		
 		//если после разбиения массива размер меньше размера под сортировку
 		if(arr.length <= sort_area_size) {		
