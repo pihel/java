@@ -112,6 +112,8 @@ public class BPTree<Key extends Comparable, Value> {
 				//стартуем с найденного элемента
 				for(int i = idx; i < leaf.num; i++) {
 					if(leaf.keys[i].compareTo(to_key) > 0) {
+						
+						//возвращаем только нужное число элементов
 						Value[] _arr = (Value[]) new Object[cnt_arr];
 						System.arraycopy(arr, 0, _arr, 0, cnt_arr);
 						arr = null;
@@ -126,6 +128,7 @@ public class BPTree<Key extends Comparable, Value> {
 				
 				leaf = leaf.next;
 			}
+			//у последнего блока нет .next - обрабатываем отдельно
 			for(int i = 0; i < leaf.num; i++) {
 				if(leaf.keys[i].compareTo(to_key) > 0) {
 					Value[] _arr = (Value[]) new Object[cnt_arr];
@@ -175,6 +178,8 @@ public class BPTree<Key extends Comparable, Value> {
 		return arr;
 	} //fullScan
 	
+	
+	//blevel - высота дерева -1
 	public int getBLevel() {
 		return blevel - 1;
 	} //getBLevel
@@ -208,6 +213,7 @@ public class BPTree<Key extends Comparable, Value> {
 	
 	//листовой блок дерева
 	class LNode extends Node {
+		//ссылки на реальные значения - строки таблицы
 		final Value[] values = (Value[]) new Object[rows_block];
 		
 		//ссылка на следующий блок
@@ -335,7 +341,7 @@ public class BPTree<Key extends Comparable, Value> {
 				/*
 				 * Пример:
 				 * 
-				        3
+					    3
 					1 2   4 5
 					---
 					mid = 6/2 = 3
