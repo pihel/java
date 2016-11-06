@@ -8,7 +8,7 @@ public class BPTree<Key extends Comparable, Value> {
 	//кол-во строк в блоке
 	private final int rows_block;
 	//высота дерева
-	private int blevel = 0;
+	private int height = 0;
 	//кол-во строк в индексе
 	private int cnt = 0;
 
@@ -25,13 +25,14 @@ public class BPTree<Key extends Comparable, Value> {
 			//создаем новый корень с сылками на лево и право
 			INode _root = new INode();
 			_root.num = 1;
-			_root.keys[0] = result.key;
+			_root.keys[0] = result.key;			
 			_root.children[0] = result.left;
 			_root.children[1] = result.right;
+			_root.level = result.level + 1;
 			root = _root;
 			
 			//повышаем счетчик высоты дерева
-			blevel++;
+			height++;
 		}
 	} //insert
 
@@ -79,7 +80,7 @@ public class BPTree<Key extends Comparable, Value> {
 		//спускаемся по внутренним веткам направо, пока не дойдем до листа
 		while (node instanceof BPTree.INode) {
 			INode inner = (INode) node;
-			node = inner.children [inner.children.length - 1];
+			node = inner.children [inner.num];
 		}
 		if( node.num == 0 ) return null;
 
@@ -181,7 +182,7 @@ public class BPTree<Key extends Comparable, Value> {
 	
 	//blevel - высота дерева -1
 	public int getBLevel() {
-		return blevel - 1;
+		return height - 1;
 	} //getBLevel
 	
 	public int getCnt() {
@@ -190,8 +191,12 @@ public class BPTree<Key extends Comparable, Value> {
 
 	public void dump() {
 		System.out.println("blevel = " + getBLevel());
-		System.out.println("cnt = " + getCnt());		
+		System.out.println("cnt = " + getCnt());
+		System.out.println("min = " + getMin());
+		System.out.println("max = " + getMax());
+		System.out.println("--------------------");
 		root.dump();
+		System.out.println("--------------------");
 	}
 
 	//абстрактный класс блока: лист или ветвь
@@ -201,6 +206,12 @@ public class BPTree<Key extends Comparable, Value> {
 		
 		//элементы в блоке
 		protected Key[] keys;
+		
+		//высота ветви/листа
+		int level;
+		
+		//последний блок ветви/листа
+		boolean last = true;
 
 		abstract public int getLoc(Key key);
 
@@ -222,18 +233,34 @@ public class BPTree<Key extends Comparable, Value> {
 		
 		public LNode() {
 			keys = (Key[]) new Comparable[rows_block];
+			level = 0;
 		} //LNode
 
 
 		//поиск индекса элемента в массиве листового блока
 		public int getLoc(Key key) {
-			//TODO
-			//линейный поиск - сделать двоичный
-			for (int i = 0; i < num; i++) {
-				if (keys[i].compareTo(key) >= 0) {
-					return i;
-				}
-			}
+			//двоичный поиск в порядоченном массиве O=Log2N
+			
+	        int lo = 0;
+	        int hi = num - 1;
+	        //пока левая и правая границы не встретятся
+	        while (lo <= hi) {
+	        	//находим середину
+	            int mid = lo + (hi - lo) / 2;
+	            
+	            //если элемент меньше середины
+	            if (key.compareTo(keys[mid]) < 0) {
+	            	//то верхняя граница - 1 = середина
+	            	hi = mid - 1;
+	            } else if (key.compareTo(keys[mid]) > 0) {
+	            	//если больше, то нижняя граница = середина + 1
+	            	lo = mid + 1;
+	            } else {
+	            	//иначе нашли
+	            	return mid;
+	            }
+	        }			
+			
 			return num;
 		}
 
@@ -242,8 +269,22 @@ public class BPTree<Key extends Comparable, Value> {
 			// находим место для вставки
 			int i = getLoc(key);
 			
+			
+			//TODO -- 90/10
 			//место вставки последний элемент, блок необходимо разбить на 2 части
 			if (this.num == rows_block) {
+				/*
+				 * Пример 50/50:
+				 * 
+					    3
+					1 2   3 4 5
+					---
+					mid = 5/2 = 2
+					snum = 4 - 2 = 2      -- уходит направо
+					mid=2                 --уходит налево
+					keys[mid]=mid[3] = 3  --средний элемент, уходит наверх
+				 * */
+				
 				//середина массива
 				int mid = (rows_block + 1) / 2;
 				
@@ -261,6 +302,12 @@ public class BPTree<Key extends Comparable, Value> {
 				//делим ровно на полам, все элементы разойдутся налево или направо
 				this.num = mid;
 				
+				//если сплитится последний блок, то помечаем последним правый
+				if(this.last) {
+					this.last = false;
+					sibling.last = true;
+				}
+				
 				//позиция в левом блоке
 				if (i < mid) {
 					this.insertNonfull(key, value, i);
@@ -268,9 +315,9 @@ public class BPTree<Key extends Comparable, Value> {
 					//или в правой
 					sibling.insertNonfull(key, value, i - mid);
 				}
-				//информируем блок ветви о разделении: {значение разделения, левый блок, правый блок}
+				//информируем блок ветви о разделении: {значение разделения, левый блок, правый блок, 0 уровень листа}
 				//элемент разделения берем из правой части
-				Split result = new Split(sibling.keys[0], this, sibling);
+				Split result = new Split(sibling.keys[0], this, sibling, level);
 				
 				//связываем текущий блок со следующим
 				this.next = sibling;
@@ -301,7 +348,9 @@ public class BPTree<Key extends Comparable, Value> {
 		}
 
 		public void dump() {
-			System.out.println("lNode h==0");
+			if(last) {
+				System.out.println("(last):");
+			}
 			for (int i = 0; i < num; i++) {
 				System.out.println(keys[i]);
 			}
@@ -318,13 +367,13 @@ public class BPTree<Key extends Comparable, Value> {
 
 		//поиск индекса для вставки в блоке-ветви
 		public int getLoc(Key key) {
-			//TODO
-			//линейный поиск
+			//линейный поиск в ветвях, т.к. нужно найти промежуток, а не конкретный элемент
 			for (int i = 0; i < num; i++) {
 				if (keys[i].compareTo(key) > 0) {
 					return i;
 				}
 			}
+	        
 			return num;
 		} //getLoc
 
@@ -341,13 +390,17 @@ public class BPTree<Key extends Comparable, Value> {
 				/*
 				 * Пример:
 				 * 
+					  2
+					1   3 4 (3 max)
+					
 					    3
-					1 2   4 5
+					1 2   4 5 (4 max)
+					
 					---
-					mid = 6/2 = 3
-					snum = 5 - 3 = 2        -- уходит направо
-					mid-1=2                 --уходит налево
-					keys[mid-1]=mid[2] = 3  --средний элемент, уходит наверх
+					mid = 5/2 = 2
+					snum = 4 - 2 = 2        -- уходит направо
+					mid-1=1                 --уходит налево
+					keys[mid-1]=mid[1] = 2  --средний элемент, уходит наверх
 				 * */
 				
 				//середина
@@ -357,6 +410,7 @@ public class BPTree<Key extends Comparable, Value> {
 				int sNum = this.num - mid;
 				INode sibling = new INode();
 				sibling.num = sNum;
+				sibling.level = this.level;
 				
 				//копируем в него половину значений
 				System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
@@ -367,7 +421,7 @@ public class BPTree<Key extends Comparable, Value> {
 				this.num = mid - 1;
 
 				//передаем информацию о разделении выше: {средний элемент, левая, правая ветвь}
-				Split result = new Split(this.keys[mid - 1], this, sibling);
+				Split result = new Split(this.keys[mid - 1], this, sibling, this.level);
 
 				//если элемент меньше середины, то вставляем в левую чать
 				if (key.compareTo(result.key) < 0) {
@@ -422,32 +476,33 @@ public class BPTree<Key extends Comparable, Value> {
 
 
 		public void dump() {
-			//TODO
-			System.out.println("iNode h==?");
 			for (int i = 0; i < num; i++) {
 				children[i].dump();
-				System.out.print('>');
-				System.out.println(keys[i]);
+				for(int j = 0; j < level; j++) System.out.print(" . ");
+				
+				System.out.println("> " + keys[i] + " ("+num+")");
 			}
 			children[num].dump();
 		}
 	} //INode
 
-	//структура с информацией о разделении: значение разделения, левая и правая часть
+	//структура с информацией о разделении: значение разделения, левая и правая часть и уровень ветви
 	class Split {
 		public final Key key;
 		public final Node left;
 		public final Node right;
+		public final int level;
 
-		public Split(Key k, Node l, Node r) {
+		public Split(Key k, Node l, Node r, int h) {
 			key = k;
 			left = l;
 			right = r;
+			level = h;
 		}
 	} //Split
 	
 	public static void main(String[] args) {
-		BPTree t = new BPTree(2);
+		BPTree t = new BPTree(3);
 		t.insert(1, 1);
 		t.insert(2, 2);
 		t.insert(3, 3);
@@ -456,12 +511,13 @@ public class BPTree<Key extends Comparable, Value> {
 		t.insert(6, 6);
 		t.insert(7, 7);
 		t.insert(8, 8);
-		//t.insert(9, 9);
-		//t.dump();
+		t.insert(9, 9);
+		t.insert(100, 100);
+		t.insert(110, 110);
+		t.dump();
 		
-		System.out.println("min = " + t.getMin());
-		System.out.println("max = " + t.getMax());
-		System.out.println("indexScan = " + t.indexScan(7));
+		
+		System.out.println("indexScan (6) = " + t.indexScan(6));
 		
 		Object arr[] = new Integer[t.getCnt()];
 		arr = t.fullScan();
