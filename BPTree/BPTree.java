@@ -270,7 +270,6 @@ public class BPTree<Key extends Comparable, Value> {
 			int i = getLoc(key);
 			
 			
-			//TODO -- 90/10
 			//место вставки последний элемент, блок необходимо разбить на 2 части
 			if (this.num == rows_block) {
 				/*
@@ -285,8 +284,14 @@ public class BPTree<Key extends Comparable, Value> {
 					keys[mid]=mid[3] = 3  --средний элемент, уходит наверх
 				 * */
 				
-				//середина массива
-				int mid = (rows_block + 1) / 2;
+				
+				//последний элемент для последнего блока
+				int mid = rows_block;
+				if(!this.last) {
+					//середина массива для остальных
+					mid = (rows_block + 1) / 2;
+				}
+				//mid = (rows_block + 1) / 2;
 				
 				//кол-во элементов в правой части
 				int sNum = this.num - mid;
@@ -383,6 +388,7 @@ public class BPTree<Key extends Comparable, Value> {
 			 * Упрощенный вариант сплита, когда разделение идет сверху вниз,
 			 * что может привести к преждевременному росту дерева и как следствие дисковых чтений в бд.
 			 * В реальности разделение должно идти снизу вверх - это минимизирует рост дерева.
+			 * 
 			 * */
 
 			//число элементов в блоке достигло предела - разделяем
@@ -513,7 +519,7 @@ public class BPTree<Key extends Comparable, Value> {
 		t.insert(8, 8);
 		t.insert(9, 9);
 		t.insert(100, 100);
-		t.insert(110, 110);
+		//t.insert(110, 110);
 		t.dump();
 		
 		
