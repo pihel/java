@@ -337,7 +337,8 @@ public class BPTree<Key extends Comparable, Value> {
 				Split result = new Split(sibling.keys[0], this, sibling, level);
 				
 				//связываем текущий блок со следующим
-				this.next = sibling;
+				sibling.next = this.next;
+				this.next = sibling;				
 				
 				return result;
 			} else {
@@ -383,7 +384,8 @@ public class BPTree<Key extends Comparable, Value> {
 		} //INode
 
 		//поиск индекса для вставки в блоке-ветви
-		/*public int getLoc(Key key) {
+		public int getLoc(Key key) {
+			//TODO?
 			//линейный поиск в ветвях, т.к. нужно найти промежуток, а не конкретный элемент
 			for (int i = 0; i < num; i++) {
 				if (keys[i].compareTo(key) > 0) {
@@ -393,7 +395,6 @@ public class BPTree<Key extends Comparable, Value> {
 	        
 			return num;
 		} //getLoc
-		*/
 
 		//вставка элемента в ветвь
 		public Split insert(Key key, Value value) {
@@ -533,7 +534,7 @@ public class BPTree<Key extends Comparable, Value> {
 		t.insert(9, 9);
 		t.insert(100, 100);*/
 		
-		/*t.insert(100, 100); 
+		t.insert(100, 100); 
 		t.insert(9, 9);
 		t.insert(8, 8);
 		t.insert(7, 7);
@@ -542,17 +543,20 @@ public class BPTree<Key extends Comparable, Value> {
 		t.insert(4, 4);
 		t.insert(3, 3);
 		t.insert(2, 2);
-		t.insert(1, 1);*/
+		t.insert(1, 1);
 		
-		Integer arr_tst[] = {2, 6, 3, 5, 1, 7, 8, 0, 27, 17, 99, 13, 1, 7};
+		//					 0  1  2  3  4  5  6  7  8   9   10  11  12 13
+		/*Integer arr_tst[] = {2, 6, 3, 5, 1, 7, 8, 0, 27, 17, 99, 13, 1, 7};
 		for(int i = 0; i < arr_tst.length; i++) {
 			t.insert(arr_tst[i], i);
-		}
+		}*/
 		
 		t.dump();
 		
 		
-		/*System.out.println("indexScan (6) = " + t.indexScan(6));
+		System.out.println("indexScan (6) = " + t.indexScan(6));
+		System.out.println("indexScan (4) = " + t.indexScan(4));
+		System.out.println("indexScan (1) = " + t.indexScan(1));
 		
 		Object arr[] = new Integer[t.getCnt()];
 		arr = t.fullScan();
@@ -567,7 +571,7 @@ public class BPTree<Key extends Comparable, Value> {
 		System.out.print("rangeScan(2,7) = ");
 		for(int i = 0; i < arr.length; i++) {
 			System.out.print((Integer)arr[i] + ", ");
-		}*/
+		}
 		
 	} //main
 } //BPTree
