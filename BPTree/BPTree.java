@@ -109,12 +109,12 @@ public class BPTree<Key extends Comparable, Value> {
 		int idx = leaf.getLoc(from_key);
 		
 		//нашли ключ элемента в блоке
-		if (idx < leaf.num && leaf.keys[idx].equals(from_key)) {
+		if (idx < leaf.num && leaf.keys[idx].compareTo(from_key) >= 0) {
 			Value[] arr = (Value[]) new Object[cnt];
 			
 			//двигаемся вправо, пока не найдем правую границу
 			int cnt_arr = 0;
-			while(leaf.next != null) {
+			do {
 				//стартуем с найденного элемента
 				for(int i = idx; i < leaf.num; i++) {
 					if(leaf.keys[i].compareTo(to_key) > 0) {
@@ -133,19 +133,7 @@ public class BPTree<Key extends Comparable, Value> {
 				idx = 0;
 				
 				leaf = leaf.next;
-			}
-			//у последнего блока нет .next - обрабатываем отдельно
-			for(int i = 0; i < leaf.num; i++) {
-				if(leaf.keys[i].compareTo(to_key) > 0) {
-					Value[] _arr = (Value[]) new Object[cnt_arr];
-					System.arraycopy(arr, 0, _arr, 0, cnt_arr);
-					arr = null;
-					return _arr;
-				}
-				
-				arr[cnt_arr] = leaf.values[i];
-				cnt_arr++;
-			}
+			} while(leaf != null);
 			
 			Value[] _arr = (Value[]) new Object[cnt_arr];
 			System.arraycopy(arr, 0, _arr, 0, cnt_arr);
@@ -396,18 +384,6 @@ public class BPTree<Key extends Comparable, Value> {
 		public int getLoc(Key key) {
 			return getLoc(key, true);
 		} //getLoc
-		
-		/*public int getLoc(Key key) {
-			//линейный поиск в ветвях, т.к. нужно найти промежуток, а не конкретный элемент
-			for (int i = 0; i < num; i++) {
-				if (keys[i].compareTo(key) > 0) {
-					return i;
-				}
-			}
-	        
-			return num;
-		} //getLoc
-		*/
 
 		//вставка элемента в ветвь
 		public Split insert(Key key, Value value) {
@@ -536,7 +512,7 @@ public class BPTree<Key extends Comparable, Value> {
 	
 	public static void main(String[] args) {
 		BPTree t = new BPTree(3);
-		/*t.insert(1, 1);
+		t.insert(1, 1);
 		t.insert(2, 2);
 		t.insert(3, 3);
 		t.insert(4, 4);
@@ -545,10 +521,10 @@ public class BPTree<Key extends Comparable, Value> {
 		t.insert(7, 7);
 		t.insert(8, 8);
 		t.insert(9, 9);
-		t.insert(100, 100);*/
+		//t.insert(100, 100);
 		
-		/*t.insert(100, 100); 
-		t.insert(9, 9);
+		//t.insert(100, 100); 
+		/*t.insert(9, 9);
 		t.insert(8, 8);
 		t.insert(7, 7);
 		t.insert(6, 6);
@@ -559,10 +535,10 @@ public class BPTree<Key extends Comparable, Value> {
 		t.insert(1, 1);*/
 		
 		//					 0  1  2  3  4  5  6  7  8   9   10  11  12 13
-		Integer arr_tst[] = {2, 6, 3, 5, 1, 7, 8, 0, 27, 17, 99, 13, 1, 7};
+		/*Integer arr_tst[] = {2, 6, 3, 5, 1, 7, 8, 0, 27, 17, 99, 13, 1, 7};
 		for(int i = 0; i < arr_tst.length; i++) {
 			t.insert(arr_tst[i], i);
-		}
+		}*/
 		
 		t.dump();
 		
