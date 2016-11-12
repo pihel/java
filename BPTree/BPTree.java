@@ -160,14 +160,12 @@ public class BPTree<Key extends Comparable, Value> {
 		
 		//последовательно идем по листам слева направо
 		int cnt_arr = 0;
-		while(leaf.next != null) {
+		do  {
 			System.arraycopy(leaf.values, 0, arr, cnt_arr, leaf.num);
 			
 			cnt_arr = cnt_arr + leaf.num;			
 			leaf = leaf.next;
-		}
-		
-		System.arraycopy(leaf.values, 0, arr, cnt_arr, leaf.num);
+		} while(leaf != null);
 		
 		return arr;
 	} //fullScan
