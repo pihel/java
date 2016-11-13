@@ -1,5 +1,7 @@
 package BPTree;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class BPTree<Key extends Comparable, Value> {
 	//https://en.wikibooks.org/wiki/Algorithm_Implementation/Trees/B%2B_tree
 
@@ -179,6 +181,32 @@ public class BPTree<Key extends Comparable, Value> {
 	public int getCnt() {
 		return cnt;
 	} //getCnt
+	
+	//фактор кластеризации
+	//идеально = число строк / число строк в блоке
+	//плохо = число строк
+	public int getClusterFactor() {
+		int cluster_factor = 0;
+		int prev_block = 0;
+		int cur_block = 0;
+		
+		Object arr[] = new Integer[cnt];
+		arr = fullScan();
+		
+		for(int i = 0; i < arr.length; i++) {
+			
+			int k_rowid = (Integer)arr[i];
+			
+			cur_block = k_rowid / rows_block;
+			
+			if(prev_block != cur_block) {
+				cluster_factor++;
+			}
+			prev_block = cur_block;
+		}
+		
+		return cluster_factor;
+	} //getClusterFactor
 
 	public void dump() {
 		System.out.println("blevel = " + getBLevel());
@@ -509,28 +537,20 @@ public class BPTree<Key extends Comparable, Value> {
 	} //Split
 	
 	public static void main(String[] args) {
-		BPTree t = new BPTree(3);
-		t.insert(1, 1);
-		t.insert(2, 2);
-		t.insert(3, 3);
-		t.insert(4, 4);
-		t.insert(5, 5);
-		t.insert(6, 6);
-		t.insert(7, 7);
-		t.insert(8, 8);
-		t.insert(9, 9);
-		//t.insert(100, 100);
+		int rows_on_block = 3;
+		BPTree t = new BPTree(rows_on_block);
 		
-		//t.insert(100, 100); 
-		/*t.insert(9, 9);
-		t.insert(8, 8);
-		t.insert(7, 7);
-		t.insert(6, 6);
-		t.insert(5, 5);
-		t.insert(4, 4);
-		t.insert(3, 3);
-		t.insert(2, 2);
-		t.insert(1, 1);*/
+		/*for(int i = 0; i <= 99; i++) {
+			t.insert(i, i);
+		}*/
+		
+		for(int i = 99; i >= 0; i--) {
+			t.insert(i, i);
+		}
+		
+		/*for(int i = 99; i >= 0; i--) {
+			t.insert(ThreadLocalRandom.current().nextInt(0, 100), i);
+		}*/
 		
 		//					 0  1  2  3  4  5  6  7  8   9   10  11  12 13
 		/*Integer arr_tst[] = {2, 6, 3, 5, 1, 7, 8, 0, 27, 17, 99, 13, 1, 7};
@@ -547,14 +567,16 @@ public class BPTree<Key extends Comparable, Value> {
 		System.out.println("indexScan (99) = " + t.indexScan(99));
 		System.out.println("indexScan (100) = " + t.indexScan(100));
 		
+		
 		Object arr[] = new Integer[t.getCnt()];
 		arr = t.fullScan();
-		System.out.print("fullScan = ");
+		System.out.print("fullScan = ");		
 		for(int i = 0; i < arr.length; i++) {
 			System.out.print((Integer)arr[i] + ", ");
 		}
-		
 		System.out.println(" ");
+		
+		System.out.println("cluster_factor = " + t.getClusterFactor());
 		
 		arr = t.rangeScan(2, 7);
 		System.out.print("rangeScan(2,7) = ");
