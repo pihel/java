@@ -44,8 +44,14 @@ public class Hash<Value> {
 	private double max_load_factor = 0.75;
 	 
 	ArrayList<HashEntry> table;
+	
+	//признак хэш группы
+	private boolean is_hash_group;
 
     public Hash(int cnt_elements) {
+    	
+    	//признак хэш массива
+    	is_hash_group = false;
     	
     	//число хэш блоков = число элементов / максимальную загрузку
     	TABLE_SIZE = (int)Math.ceil((double)cnt_elements / max_load_factor );
@@ -61,23 +67,38 @@ public class Hash<Value> {
     } //Hash   
     
     public Hash(HashEntry[] tbl, int hash_area_size) {
+    	//признак хэш группы
+    	is_hash_group = true;
+    	
     	//кол-во хэш групп
-    	int group_cnt = (int)Math.ceil( (double)tbl.length / (double)hash_area_size );
-    	TABLE_SIZE = (int)Math.ceil(group_cnt / max_load_factor ) ;
+    	TABLE_SIZE = (int)Math.ceil((double)tbl.length / hash_area_size / max_load_factor );
+
+    	//кол-во хэшей в группе
+    	int group_cnt = (int)Math.ceil( (double)tbl.length / (double)TABLE_SIZE / max_load_factor );
+    	group_cnt = Math.min(hash_area_size, group_cnt );
     	
     	table = new ArrayList<HashEntry>(TABLE_SIZE);
     	for (int k = 0; k < TABLE_SIZE; k++) {
-			HashEntry he = new HashEntry(k, new Hash(hash_area_size) );
+			HashEntry he = new HashEntry(k, new Hash(group_cnt) );
     		table.add(k, he);
     	}
     	
     	for(int i = 0; i < tbl.length; i++) {
-    		this.put(tbl[i].key, (Value)tbl[i].root.value, true);
+    		this.put(tbl[i].key, (Value)tbl[i].root.value);
     	}
     } //Hash
     
     //заполненность хэш таблицы
     public double getLoadFactor() {
+    	//для хэш группы = среднему из хэш таблиц
+    	if(is_hash_group) {
+    		double load_fact = 0;
+        	for(int i = 0; i < TABLE_SIZE; i++) {    		
+        		load_fact = load_fact + ((Hash)table.get(i).root.value).getLoadFactor();
+        	}
+    		return load_fact / TABLE_SIZE;
+    	}
+    	
     	//= число элементов / число хэш блоков
     	return (double)cnt / (double)TABLE_SIZE;
     } //getLoadFactor
@@ -99,7 +120,12 @@ public class Hash<Value> {
     
     
     //получить хэш ключ по ключу поиска
-    private int getHash(int key) {
+    private int gethash(int key) {
+    	//для хэш группы не предусмотрено коллизий, коллизия помещается в хэш массив под нужным индексом
+    	if(is_hash_group) {
+        	return (key % TABLE_SIZE);
+        } 
+    	
     	//хэш ключ таблицы
         int hash = (key % TABLE_SIZE);
         //первое значение ключа хэширования
@@ -125,32 +151,33 @@ public class Hash<Value> {
         
         return hash;
     	
-    } //getHash
+    } //gethash
 
-    public ValueList get(int key) {
+    public HashEntry get(int key) {
     	//хэш ключ таблицы
-        int hash = getHash(key);
+        int hash = gethash(key);
+        
+        if(is_hash_group) {
+        	return ((Hash)table.get(hash).root.value).get(key);
+        }
           
         //значение по хэшу
         if (hash == -1 || table.get(hash) == null) {
         	return null;
     	} else {
-    		return table.get(hash).root;
+    		return table.get(hash);
         }
     } //get
-    
-    public void put(int key, Value value) {
-    	this.put(key, value, false);
-    }
 
-    private void put(int key, Value value, boolean is_hash_group) {   	
+    private void put(int key, Value value) {    	
     	//хэш ключ таблицы
-        int hash = getHash(key);
+        int hash = gethash(key);
 		
 		//если хэш для вставки нашелся
 		if (hash != -1) {
 	    	if(is_hash_group) {
-	    		((Hash)table.get(hash).root.value).put(key, value, false);
+	    		((Hash)table.get(hash).root.value).put(key, value);
+	    		cnt++;
 	    		return;
 	    	}
 			
@@ -162,28 +189,31 @@ public class Hash<Value> {
 	        	table.set(hash, new HashEntry(key, value) );
 	        	cnt++;
 	        }
+		} else {
+			throw new RuntimeException("Overflow elemnt = " + key + " on hash table size = " + TABLE_SIZE);
 		}
     } //put
     
     public void dump() {
+    	dump(true);
+    }//dump
+    
+    public void dump(boolean add_total) {
     	for(int i = 0; i < table.size(); i++) {    		
     		HashEntry he = table.get(i);
     		if(he == null) continue;
     		
-    		if( he.root.value.getClass() != Hash.class ) {
-    			System.out.print("  ");
-    		}
+    		if(!is_hash_group ) System.out.print("  ");
     		
-    		int max_lvl = 0;
-    		System.out.print (he.key + " = { ");
+    		System.out.print ("[hsh=" + i + "] (sz="+TABLE_SIZE+") k=" + he.key + " vls = { ");
     		
     		//если будут дочерний массив, то с новой строки внутренний массив
-    		if(he.root.value.getClass() == Hash.class ) System.out.println(" ");
+    		if(is_hash_group) System.out.println(" ");
     		
+    		ValueList he_root = he.root;
     		do {
-    			if( he.root.value.getClass() == Hash.class ) {
-    				((Hash)he.root.value).dump();
-    				max_lvl = 1;
+    			if( is_hash_group ) {
+    				((Hash)he.root.value).dump(false);
     			} else {
     				System.out.print (he.root.value + ", ");
     			}
@@ -193,41 +223,68 @@ public class Hash<Value> {
     		System.out.println ("}, ");
     		
     		//доп перенос строки - разделить главные массивы
-    		if(max_lvl > 0) {
+    		if(is_hash_group) {
     			System.out.println (" ");
     		}
+    		
+    		//вернем указатель на начало
+    		he.root = he_root;
 		}
+    	
+    	if(add_total) { 
+	    	System.out.println ( " " );
+			System.out.println ( "cnt = " + getCnt() );	
+			System.out.println ( "load factor = " + getLoadFactor() );
+			System.out.println ( "avg probes = " + getAvgProbeCnt() );
+    	}
     } //dump
+    
+    public static void dumpEntry(HashEntry he) {
+    	if(he == null) return;
+    	
+		ValueList he_root = he.root;
+		System.out.print ("[" + he.key + "] = ");
+		do {
+			System.out.print (he.root.value + ", ");		
+			
+			he.root = he.root.next;
+		} while(he.root != null);
+		he.root = he_root;
+    	
+    } //dumpEntry
 	
 	public static void main(String[] args) {		
 		Hash h;
 		
-		/*h = new Hash(16);
+		/*h = new hash(7);
 		h.put(1,1);
 		h.put(1,1);
+		h.put(2,2);
+		h.put(3,3);
 		h.put(11,11);
-		h.put(2,2);		
 		System.out.println ("get(111) = " +  h.get(111) );*/
 		
 		/*h = new Hash(16);
 		for(int i = 0; i < 10; i++) {
-			h.put(ThreadLocalRandom.current().nextInt(0, 10) , "r." + i);
+			h.put(ThreadLocalRandom.current().nextInt(0, 5) , "r." + i);
+			//h.put(i , "r." + i);
 		}*/
+		
 		
 		HashEntry[] he = new HashEntry[10];		
 		for(int i = 0; i < 10; i++) {
 			he[i] = new HashEntry( ThreadLocalRandom.current().nextInt(0, 10) , "r." + i );
-			//he[i] = new HashEntry( 1 , "r." + i );
+			//he[i] = new HashEntry( i , "r." + i );
 		}
-		h = new Hash(he, 4);
+		h = new Hash(he, 5);
+		
+		for(int i = 0; i < 10; i++) {
+			System.out.print ( "get(" + i + ") = " );
+			Hash.dumpEntry ( h.get(i) );
+			System.out.println ( " " );
+		}
 		
 		h.dump();
-		
-		System.out.println ( " " );
-		System.out.println ( "cnt = " + h.getCnt() );
-		System.out.println ( "tbl size = " + h.getTblSize() );		
-		System.out.println ( "load factor = " + h.getLoadFactor() );
-		System.out.println ( "avg probes = " + h.getAvgProbeCnt() );
 		
 	} //main
 
