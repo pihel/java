@@ -3,29 +3,29 @@ package Hash;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-class ValueList<Value> {
+class HashValueList<Value> {
 	public Value value;
-	public ValueList next;
+	public HashValueList next;
 	
-	public ValueList(Value val) {
+	public HashValueList(Value val) {
 	    this.next = null;
 	    this.value = val;
-    } //ValueList
+    } //HashValueList
 	
-} //ValueList
+} //HashValueList
 
 class HashMapEntry<Value> {
     public int key;
-    public ValueList root;
+    public HashValueList root;
 
     public HashMapEntry(int key, Value value) {
 	    this.key = key;
-	    this.root = new ValueList( value );
+	    this.root = new HashValueList( value );
     } //HashMapEntry
     
     public void add(Value value) {
-    	ValueList old_root = this.root;
-    	this.root = new ValueList( value );
+    	HashValueList old_root = this.root;
+    	this.root = new HashValueList( value );
     	this.root.next = old_root;
     } //add
 } //HashMapEntry
@@ -210,7 +210,7 @@ public class HashMap<Value> {
     		//если будут дочерний массив, то с новой строки внутренний массив
     		if(is_HashMap_group) System.out.println(" ");
     		
-    		ValueList he_root = he.root;
+    		HashValueList he_root = he.root;
     		do {
     			if( is_HashMap_group ) {
     				((HashMap)he.root.value).dump(false);
@@ -242,7 +242,7 @@ public class HashMap<Value> {
     public static void dumpEntry(HashMapEntry he) {
     	if(he == null) return;
     	
-		ValueList he_root = he.root;
+		HashValueList he_root = he.root;
 		System.out.print ("[" + he.key + "] = ");
 		do {
 			System.out.print (he.root.value + ", ");		
