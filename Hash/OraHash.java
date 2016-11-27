@@ -303,30 +303,31 @@ class OraHash<Value> extends Hash<Value> {
     			hash_max = i;
     		}
     	}
-    	if(hash_max < 0 || this.holder[hash_max].cnt_mem >= this.holder[hash_max].cnt) return;
+    	if(hash_max < 0) return;
     	
     	//System.out.println ( "max free mem hash = " + hash_max);
     	
+    	this.holder[hash_max].is_reorg = true;
+    	
     	for(int i = 0; i < this.holder.length; i++) {
-    		if( i != hash_max && this.holder[i] != null && this.holder[i].cnt_mem > 0 ) {
-    			if(this.holder[hash_max].cnt_mem >= this.holder[hash_max].cnt) break;
+    		if( i != hash_max && 
+    				this.holder[i] != null && 
+    				this.holder[i].cnt_mem > 0) {
     			
     			int elems_in_disk = this.holder[hash_max].cnt - this.holder[hash_max].cnt_mem;
     			
-    			if(elems_in_disk >= this.holder[i].cnt_mem) {
-    				this.holder[hash_max].cnt_mem = this.holder[hash_max].cnt_mem + this.holder[i].cnt_mem;
-    				this.holder[i].cnt_mem = 0;
-    			} else {
-    				int elems_move_mem = this.holder[i].cnt_mem - elems_in_disk;
-    				
-    				this.holder[hash_max].cnt_mem = this.holder[hash_max].cnt_mem + elems_move_mem;
-    				this.holder[i].cnt_mem = this.holder[i].cnt_mem - elems_move_mem;
+    			if(elems_in_disk <= 0) break;
+    			
+    			if(elems_in_disk > this.holder[i].cnt_mem) {
+    				elems_in_disk = this.holder[i].cnt_mem;
     			}
-    		}
+    			this.holder[hash_max].cnt_mem = this.holder[hash_max].cnt_mem + elems_in_disk;
+				this.holder[i].cnt_mem = this.holder[i].cnt_mem - elems_in_disk;
+				
+    		} //if
     	}
-    	this.holder[hash_max].is_reorg = true;
     	
-    	//reorg();
+    	reorg();
     	
     } //reorg
     
