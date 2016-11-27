@@ -298,7 +298,9 @@ class OraHash<Value> extends Hash<Value> {
     		if( this.holder[i] != null && 
     				this.holder[i].cnt_mem > elems_in_mem && 
     				this.holder[i].cnt_mem < this.holder[i].cnt && 
-    				!this.holder[i].is_reorg ) {
+    				!this.holder[i].is_reorg &&
+    				this.holder[i].cnt <= hash_area_size
+    				) {
     			elems_in_mem = this.holder[i].cnt_mem;
     			hash_max = i;
     		}
@@ -341,6 +343,7 @@ class OraHash<Value> extends Hash<Value> {
     			System.out.print("[" + i + "]=" + bitmap[i] + ", ");
     		}
     	}
+    	System.out.println (" ");
     } //dump
 
     public static void main(String[] args) {
@@ -362,7 +365,7 @@ class OraHash<Value> extends Hash<Value> {
 	   System.out.println(" ");
 	   rev.dump();*/
     	
-       /*Hash h = new OraHash(13);
+    	/*OraHash h = new OraHash(13);
        h.put(1,1);
        h.put(1,1);
        h.put(2,2);
@@ -372,7 +375,7 @@ class OraHash<Value> extends Hash<Value> {
 	   
        OraHash h = new OraHash(13);
 	   for(int i = 0; i < 50; i++) {
-	       h.put(ThreadLocalRandom.current().nextInt(0, 50) , "r." + i);
+	       h.put(ThreadLocalRandom.current().nextInt(0, 3) , "r." + i);
 	       //h.put(i , "r." + i);
 	   }
 	   h.reorg();
