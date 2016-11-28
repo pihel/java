@@ -149,7 +149,9 @@ class Hash<Value> {
     	this(10);
     } //Hash
  
-    public Hash(int _table_size) {    	
+    public Hash(int _table_size) {
+    	if(_table_size < 1) _table_size = 1;
+    	
 	    TABLE_SIZE = _table_size;
 	    
 	    holder = new HashEntryHolder[TABLE_SIZE];
@@ -160,6 +162,10 @@ class Hash<Value> {
     public static int getHash(int key) {
     	return (key % TABLE_SIZE);
     } //getHash
+    
+    public HashEntryHolder[] getFullHash() {
+    	return this.holder;
+    } //getFullHash
  
     public ValueList get(int key) {
 		int hash = getHash(key);
@@ -373,7 +379,7 @@ class OraHash<Value> extends Hash<Value> {
        h.put(11,11);
        h.dump();*/
 	   
-       OraHash h = new OraHash(13);
+       OraHash h = new OraHash(1);
 	   for(int i = 0; i < 50; i++) {
 	       h.put(ThreadLocalRandom.current().nextInt(0, 3) , "r." + i);
 	       //h.put(i , "r." + i);
