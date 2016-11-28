@@ -53,8 +53,6 @@ public class OraHashTest {
 	 	    src = null;
 	 	    
     	}
-    	
-    	//reorg test: 1 нет mem>cnt; хотябы 1 элемент должен быть реорганизован, если в нем кол-во элементов меньше area_size
  	   
     } //OraHash
     
@@ -73,8 +71,12 @@ public class OraHashTest {
 	 	    	h.put(k , "r." + j);
 	 	    }
 	 	    h.reorg();
-	 	    
-	 	    assertEquals(1, 1 );
+	 	    HashEntryHolder[] hold = h.getFullHash();
+	 	    for(int j = 0; j < h.getTblSize(); j++) {
+	 	    	if(hold[j] != null) {
+	 	    		assertFalse((hold[j].table.cnt_mem > hold[j].table.cnt));
+	 	    	}
+	 	    }
 	 	   
 	 	    h = null;
 	 	    
