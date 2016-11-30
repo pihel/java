@@ -74,7 +74,7 @@ public class OraHashTest {
 	 	    HashEntryHolder[] hold = h.getFullHash();
 	 	    for(int j = 0; j < h.getTblSize(); j++) {
 	 	    	if(hold[j] != null) {
-	 	    		assertFalse((hold[j].table.cnt_mem > hold[j].table.cnt));
+	 	    		assertFalse((hold[j].cnt_mem > hold[j].cnt));
 	 	    	}
 	 	    }
 	 	   
