@@ -231,11 +231,11 @@ class Hash<Value> {
 		  //инициализируем объектом секции
 		  holder[hash] = new HashEntryHolder(key, value, hash);
 		  //увеличиваем счетчик занятых секций
-          hash_cnt++;
-          
-          //увеличиваем оставшиеся значения: общее число, уникальное число и число в памяти
-          uniq_cnt++;
-          holder[hash].addCnt();
+		  hash_cnt++;
+		  
+		  //увеличиваем оставшиеся значения: общее число, уникальное число и число в памяти
+		  uniq_cnt++;
+		  holder[hash].addCnt();
 		} else {
 			//нужная секция уже есть
 			HashEntry entry = holder[hash].table;
@@ -481,6 +481,7 @@ class OraHash<Value> extends Hash<Value> {
 	       //h.put(i , "r." + i);
 	   }
 	   //реорганизуем секции в памяти
+	   h.dump();
 	   h.reorg();
 	   h.dump();
                    
