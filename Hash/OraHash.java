@@ -367,7 +367,7 @@ class OraHash<Value> extends Hash<Value> {
     	//быстрая дополнительная проверка по битовой карте, без обращения к хэш таблице
     	int hash = getBitmapHash(key);
     	
-    	if(!bitmap[getBitmapHash(key)]) return null;
+    	if(!bitmap[hash]) return null;
     	
     	return super.get(key);
     } //get
