@@ -1,44 +1,58 @@
 package Hash;
 
+import java.lang.Math;
+
 public class BloomFilter {
 
-	private static final int MAX_HASHES = 8;
-	private static long[] byteTable;
-	private static final long HSTART = 0xBB40E64DA205B064L;
-	private static final long HMULT = 7664345821815920749L;
+	private byte[] byteTable;
+	
+	private int hash_nums;
 
-	BloomFilter() {
-		byteTable = new long[256 * MAX_HASHES];
-		long h = 0x544B2FBACAAF1684L;
-		for (int i = 0; i < byteTable.length; i++) {
-			for (int j = 0; j < 31; j++) {
-				h = (h >>> 7) ^ h;  //сдвиг вправо значение >> количество (при смещении за пределы - бит теряется, на новом месте появляется 0) 
-				h = (h << 11) ^ h;  // ^ = XOR
-				h = (h >>> 10) ^ h; //1 сдвиг вправо = деление на 2 с откидывнием остатка, влево - умножение на 2 (пока есть место)
-			}
-			byteTable[i] = h;
-		}
+	BloomFilter(int _hash_nums) {
+		hash_nums = _hash_nums;
+		byteTable = new byte[32 * hash_nums];
 	} //BloomFilter
 
-	public long hashCode(String s, int hcNo) {
-		long h = HSTART;
-		final long hmult = HMULT;
-		final long[] ht = byteTable;
-		int startIx = 256 * hcNo;
-		for (int len = s.length(), i = 0; i < len; i++) {
-			char ch = s.charAt(i);
-			h = (h * hmult) ^ ht[startIx + (ch & 0xff)];
-		    h = (h * hmult) ^ ht[startIx + ((ch >>> 8) & 0xff)];
-		}
-		return h;
+	public static int hashCode(String s, int hash_num) {
+		int result = 1;
+        for (int i = 0; i < s.length(); ++i) {
+        	//1 = (1 * 1 + 58)
+        	//1 = ( 0001 * 0001 + 11 0001 ) & 1111 1111 1111 1111 1111 1111 1111 1111
+        	result = (hash_num * result + s.charAt(i)) & 0xFFFFFFFF;
+        }
+        
+        return result;
 	}
+	
+	public void add(String s) {
+		for(int i = 1; i <= hash_nums; i++) {
+			int index = hashCode(s, i);
+			
+			byteTable[(int)Math.floor(index / 32)] |= 1 << (index % 32);
+		}
+	} //add
+	
+	public boolean test(String s) {
+		for(int i = 1; i <= hash_nums; i++) {
+			int index = hashCode(s, i);
+			
+			if( ((byteTable[(int)Math.floor(index / 32)] >>> (index % 32)) & 1) == 0) {
+				return false;
+			}
+		}
+		
+		return true;
+	} //test
 
 	public static void main(String[] args) {
-		BloomFilter bf = new BloomFilter();
+		BloomFilter bf = new BloomFilter(3);
 		
-		System.out.println(bf.hashCode("1",1));
-		System.out.println(bf.hashCode("1",1));
-		System.out.println(bf.hashCode("1",2));
+		System.out.println(bf.hashCode("10",1));
+		System.out.println(bf.hashCode("10",2));
+		System.out.println(bf.hashCode("10",3));
+		System.out.println(bf.hashCode("1234567890",1));
+		System.out.println(bf.hashCode("1234567890111111111111111111111111111111111111111111111",2));
+		System.out.println(bf.hashCode("123456789012222222221111111111111111",2));
 	}
 
 }
