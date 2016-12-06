@@ -1,24 +1,29 @@
 package Hash;
 
 import java.lang.Math;
+import java.util.BitSet;
 
 public class BloomFilter {
 
-	private byte[] byteTable;
+	private final BitSet data;
 	
 	private int hash_nums;
+	public int hashMask;
 
-	BloomFilter(int _hash_nums) {
-		hash_nums = _hash_nums;
-		byteTable = new byte[32 * hash_nums];
+	BloomFilter(int num_bits, int num_hashs) {
+		this.hash_nums = num_hashs;
+		
+		this.data = new BitSet(1 << num_bits);
+		
+	    this.hashMask = (1 << num_bits) - 1;
 	} //BloomFilter
 
-	public static int hashCode(String s, int hash_num) {
+	public int hashCode(String s, int hash_num) {
 		int result = 1;
         for (int i = 0; i < s.length(); ++i) {
         	//1 = (1 * 1 + 58)
         	//1 = ( 0001 * 0001 + 11 0001 ) & 1111 1111 1111 1111 1111 1111 1111 1111
-        	result = (hash_num * result + s.charAt(i)) & 0xFFFFFFFF;
+        	result = (hash_num * result + s.charAt(i)) & this.hashMask;
         }
         
         return result;
@@ -28,7 +33,7 @@ public class BloomFilter {
 		for(int i = 1; i <= hash_nums; i++) {
 			int index = hashCode(s, i);
 			
-			byteTable[(int)Math.floor(index / 32)] |= 1 << (index % 32);
+			data.set(index);
 		}
 	} //add
 	
@@ -36,16 +41,17 @@ public class BloomFilter {
 		for(int i = 1; i <= hash_nums; i++) {
 			int index = hashCode(s, i);
 			
-			if( ((byteTable[(int)Math.floor(index / 32)] >>> (index % 32)) & 1) == 0) {
-				return false;
-			}
+			//
 		}
 		
 		return true;
 	} //test
 
 	public static void main(String[] args) {
-		BloomFilter bf = new BloomFilter(3);
+		BloomFilter bf = new BloomFilter(30, 3);
+		
+		System.out.println(bf.hashMask);
+		System.out.println("---");
 		
 		System.out.println(bf.hashCode("10",1));
 		System.out.println(bf.hashCode("10",2));
