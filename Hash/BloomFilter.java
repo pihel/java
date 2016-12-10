@@ -5,64 +5,71 @@ import java.util.BitSet;
 
 public class BloomFilter {
 
-  private BitSet data;
-  private byte[] data1;
+  private long data;
   
   private int hash_nums;
-  public int hashMask;
+  public long hashMask;
 
   BloomFilter(int num_bits, int num_hashs) {
     this.hash_nums = num_hashs;
     
-    this.data = new BitSet(1 << num_bits);
-    this.data1 = new byte[(int)Math.floor( num_bits / 8 )];
+    this.hashMask = (long)( 1L << num_bits ) -1 ;
     
-    this.hashMask = (1 << num_bits) - 1;
+    this.data = 0L;
   } //BloomFilter
 
-  public int hashCode(String s, int hash_num) {
-    int result = 1;
-        for (int i = 0; i < s.length(); ++i) {
-          //1 = (1 * 1 + 58)
-          //1 = ( 0001 * 0001 + 11 0001 ) & 1111 1111 1111 1111 1111 1111 1111 1111
-          result = (hash_num * result + s.charAt(i)) & this.hashMask;
-        }
-        
-        return result;
+  //номер бита в битовом массиве
+  public long hashCode(String s, int hash_num) {
+    long result = 1;
+    for (int i = 0; i < s.length(); ++i) {
+      //1 = (1 * 1 + 58)
+      //1 = ( 0001 * 0001 + 11 0001 ) & 1111 1111 1111 1111 
+      result = (hash_num * result + s.charAt(i)) & this.hashMask;
+    }
+    
+    return result % Long.SIZE;
   }
   
+  public void setBit(long index) {
+	  this.data = this.data | (1L << index );
+  } //setbit
+  
+  public long getBit(long index) {
+	  return ( this.data >>> index )  & 1;
+  } //getBit
+  
   public void add(String s) {
-    for(int i = 1; i <= hash_nums; i++) {
-      int index = hashCode(s, i);
-      
-      data.set(index);
-      System.out.println(index/8);
-      //data1[(int)Math.floor( index / 8 )] = (byte) (data1[index / 8] | (1 << index % 8 ));
-      //bits[Math.floor(index / 32)] = bits[Math.floor(index / 32)] | ( 1 << (index % 32) );
-    }
+	System.out.println(s);
+	for(int i = 1; i <= hash_nums; i++) {
+	  long index = hashCode(s, i);
+	  System.out.print(i+" ) [" + index + "] ");
+	  setBit(index);
+	  dump();
+	}
   } //add
   
   public boolean test(String s) {
     for(int i = 1; i <= hash_nums; i++) {
-      int index = hashCode(s, i);
+      long index = hashCode(s, i);
       
-      if( !data.get(index) ) return false;
+      if( getBit(index) == 0L ) return false;
     }
     
     return true;
   } //test
   
+  public void dump(long _data) {
+	  System.out.println(_data + " = " + Long.toBinaryString(_data | (this.hashMask + 1)).substring(1));
+  } //dump
+  
   public void dump() {
-	  System.out.println(data);
-	  System.out.println("---");
-	  System.out.println(data1);
+	  dump(this.data);
   } //dump
 
   public static void main(String[] args) {
-    BloomFilter bf = new BloomFilter(30, 3);
-    bf.add("a0");
+    BloomFilter bf = new BloomFilter(63, 3);
     
-    /*String[] arr = new String[10];
+    String[] arr = new String[100];
     for(int i = 0; i < 3; i++) {
     	arr[i] = "a" + i;
     	bf.add(arr[i]);
@@ -75,7 +82,7 @@ public class BloomFilter {
     	}
     }
     System.out.println("b0=" + bf.test("b0"));
-    bf.dump();*/
+    bf.dump();
   }
 
 }
