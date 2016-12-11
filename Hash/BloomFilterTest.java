@@ -46,7 +46,7 @@ public class BloomFilterTest {
 	 		   
 	 		   boolean h_val = bf.test(rand_str);
 	 		   
-	 		   //если элемент есть в массиве, то блуф фильтр всегда должен его найти
+	 		   //если элемент есть в массиве, то блум фильтр всегда должен его найти
 	 		   if(src_val && !h_val) {
 	 			   assertEquals(src_val, h_val );
 	 		   }

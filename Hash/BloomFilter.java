@@ -68,7 +68,7 @@ public class BloomFilter {
   //получить значение бита на index месте
   public long getBit(long index) {
 	  //=битовая карта смещенная вправо на index мест (>>> пустые места справа заполняются 0)
-	  // & 01 - проверка только крайнего левого бита (все остальные игнорируются)
+	  // & 01 - проверка только крайнего правого бита (все остальные игнорируются)
 	  return ( this.data >>> index ) & 1;
   } //getBit
   
@@ -132,7 +132,7 @@ public class BloomFilter {
   } //getOptimalFncCnt
 
   public static void main(String[] args) {
-    /*BloomFilter bf = new BloomFilter(63, 3);
+    BloomFilter bf = new BloomFilter(63, 3);
     
     String[] arr = new String[100];
     for(int i = 0; i < 5; i++) {
@@ -147,22 +147,7 @@ public class BloomFilter {
     	}
     }
     System.out.println("b0=" + bf.test("b0"));
-    bf.dump();*/
-	  
-  	for(int i = 0; i <= 50; i++) {
-		BloomFilter bf = new BloomFilter(ThreadLocalRandom.current().nextInt(1, 63), ThreadLocalRandom.current().nextInt(1, 10));
-		bf.debug = false;
-		
-		int elems = ThreadLocalRandom.current().nextInt(1, 100);
-		String[] arr = new String[elems];
-		
- 	    for(int j = 0; j < elems; j++) {
- 	    	arr[i] = "a" + i;
- 	      	bf.add(arr[i]);
- 	    }
-		
-		bf = null;
-	}
+    bf.dump();
     
     
   } //main
