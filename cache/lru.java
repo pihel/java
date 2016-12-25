@@ -138,7 +138,13 @@ public class Lru<Value> {
 		this.end.next = null;
 		
 		//у старой середины изменяем счетчик на 1
-		this.cold.cnt = 1;
+		if(this.cold.swaped) {
+			//если смещенный элемент не был ни разу считан 
+			//и дошел до середины, 
+			//то сбрасываем счетчик в 1
+			this.cold.cnt = 1;
+			this.cold.swaped = false;
+		}
 		
 		//новый блок в середину = cold
 		
