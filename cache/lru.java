@@ -20,16 +20,23 @@ class Node<Value> {
 	//указатель на следующий элемент
 	Node next;
 	
+	//элемент был перемещен из конца списка в начало
+	boolean swaped;
+	
 	public Node(int key, Value value){
 		this.key = key;
 		this.value = value;
 		this.cnt = 1;
+		this.swaped = false;
 	}
 	
 	//получить значение из списка
 	public Value getValue() {
 		//увеличиваем счетчик обращений
 		cnt++;
+		//сбрасываем признак смещений, если элемент был прочитан
+		this.swaped = false;
+		
 		return value;
 	}
 	
@@ -38,6 +45,8 @@ class Node<Value> {
 		this.value = val;
 		//также увеличиваем счетчик
 		cnt++;
+		//сбрасываем признак смещений, если элемент был перезаписан
+		this.swaped = false;
 	} //setValue
 } //Node
 
@@ -161,11 +170,21 @@ public class Lru<Value> {
 		this.head.prev = n;					
 		this.head = n;
 		
+		//помечаем, что элемент был перемещен из конца в начало
+		this.head.swaped = true;
+		
 		//смещаем середину на 1 влево
-		this.cold.cnt = 1;
+		if(this.cold.swaped) {
+			//если смещенный элемент не был ни разу считан 
+			//и дошел до середины, 
+			//то сбрасываем счетчик в 1
+			this.cold.cnt = 1;
+			this.cold.swaped = false;
+		}
 		this.cold = this.cold.prev;
 		
 		//рекурсивно пытаемся вставить вконец
+		//TODO: если все популярные? то вставка будет идти очень долго
 		this.set(key, value);
 	} //addColdPop
 	
@@ -207,7 +226,9 @@ public class Lru<Value> {
 		Node n = this.head;
 		do {			
 			if(n.prev != null && n.prev.next != null) System.out.print("> ");			
-			System.out.print("[" + n.key + "] " + n.value + " (cnt=" + n.cnt + ")");			
+			System.out.print("[" + n.key + "] " + n.value + " (cnt=" + n.cnt );	
+			if(n.swaped) System.out.print(", swapped");
+			System.out.print(")");
 			if( n == this.cold ) System.out.print(" {COLD}");			
 			if(n.next != null && n.next.prev != null) System.out.print(" <-");			
 			
@@ -219,26 +240,26 @@ public class Lru<Value> {
 		Lru l = new Lru(5);
 		
 		String r;
-		for(int i = 0; i < 50; i++) {
+		/*for(int i = 0; i < 50; i++) {
 			if(i % 5 == 0) {
 				l.set(ThreadLocalRandom.current().nextInt(0, 10),"r." + i);
 			}
 			r = (String)l.get(ThreadLocalRandom.current().nextInt(0, 10));
-		}
+		}*/
 		
-		/*l.set(1,"1");
+		l.set(1,"1");
 		l.set(2,"2");
 		l.set(3,"3");
 		l.set(4,"4");	
 		l.set(5,"5");
 		
-		String r = (String)l.get(5);
+		r = (String)l.get(5);
 		r = (String)l.get(5);
 		r = (String)l.get(1);
 		r = (String)l.get(1);
 		
 		l.set(6,"6");
-		l.set(7,"7");*/
+		l.set(7,"7");
 		
 		l.dump();
 	} //main
