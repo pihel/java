@@ -3,13 +3,21 @@ package cache;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+//двухсвязный список
 class Node<Value> {
+	//ключ списка
 	int key;
+	
+	//абстрактное значение
 	Value value;
 	
+	//счетчик обращений к элементу
 	int cnt;
 	
+	//указатель на предыдущий элемент
 	Node prev;
+	
+	//указатель на следующий элемент
 	Node next;
 	
 	public Node(int key, Value value){
@@ -18,13 +26,17 @@ class Node<Value> {
 		this.cnt = 1;
 	}
 	
+	//получить значение из списка
 	public Value getValue() {
+		//увеличиваем счетчик обращений
 		cnt++;
 		return value;
 	}
 	
+	//установить значение
 	public void setValue(Value val) {
 		this.value = val;
+		//также увеличиваем счетчик
 		cnt++;
 	} //setValue
 } //Node
@@ -32,24 +44,38 @@ class Node<Value> {
 
 public class Lru<Value> {
 	
+	//доступной число элементов в кэше
 	int capacity;
 	
+	//хэш массив элементов для быстрого доступа
 	HashMap<Integer, Node> map;
 	
+	//указатель на начало (горячие элементы)
 	Node head = null;
+	
+	//указатель на середину (начало холодных элементов)
 	Node cold = null;
+	
+	//указатель на конец (самый редкоиспользуемый)
 	Node end = null;
 	
+	//число элементов в кэше
 	int cnt;
 	
+	
+	//конкструктор с числом элементов в кэше
 	public Lru (int capacity) {
 		this.capacity = capacity;
 		
+		//хэш массив создаем с нужным числом секций = загруженности
 		map = new HashMap<Integer, Node>(capacity);
 	}
 	
+	//получить элемент из кэша
 	public Value get(int key) {
+		//быстрое извлечение их хэш массива
 		if(map.containsKey(key)) {
+			//и инкремент счетчика обращений
 			return (Value) map.get(key).getValue();
 		}
 		
@@ -61,17 +87,23 @@ public class Lru<Value> {
 		
 		//первый элемент
 		if(this.head == null) {
+			//устанавливаем начало и конец = элементу
 			this.head = n;
 			this.end = n;
 		} else {
 			
 			//вставляем вначало
+			
+			//следующий для нового элемента = начало списка
 			n.next = this.head;
+			
+			//предыдущий для начала списка = новый элемент
 			this.head.prev = n;					
 			this.head = n;
 			
 			//второй элемент
 			if(this.end.prev == null) {
+				//предыдущий для конца = новый элемент
 				this.end.prev = n;
 			}
 		}				
@@ -81,13 +113,18 @@ public class Lru<Value> {
 			this.cold = n;
 		}
 		
+		//счетчик элементов + 1
 		cnt++;
 	} //addHead
 	
 	//вконце малопопулярный блок
 	protected void addColdUnPop(Node n) {
 		//удаляем конец
+		
+		//из хэш массива
 		map.remove(this.end.key);
+		
+		//и делаем концом списка = предыдущий элемент
 		this.end = this.end.prev;
 		this.end.next = null;
 		
@@ -95,8 +132,12 @@ public class Lru<Value> {
 		this.cold.cnt = 1;
 		
 		//новый блок в середину = cold
+		
+		//проставляем ссылки у нового элемента
 		n.prev = this.cold.prev;
 		n.next = this.cold;
+		
+		//и разрываем связи и соседей
 		n.prev.next = n;
 		n.next.prev = n;
 		this.cold = n;
@@ -108,7 +149,9 @@ public class Lru<Value> {
 		this.end.cnt = this.end.cnt / 2;		
 		
 		//открепляем конец
-		Node n = this.end;					
+		Node n = this.end;
+		
+		//и делаем концом списка = предыдущий элемент
 		this.end = this.end.prev;
 		this.end.next = null;
 		
@@ -127,12 +170,16 @@ public class Lru<Value> {
 	} //addColdPop
 	
 	public void set(int key, Value value) {
+		//если элемент по ключу уже есть, то заменяем значение
 		if(map.containsKey(key)) {
 			map.get(key).setValue(value);
 		} else {
+			//новый элемент
 			Node created = new Node(key, value);			
 			
+			//если в буфере еще есть место
 			if(cnt < capacity) {
+				//просто вставляем в начало
 				addHead(created);			
 			} else {
 				//свободного места нет
@@ -147,11 +194,13 @@ public class Lru<Value> {
 				}
 			} //else
 			
+			//добавляем элемент в хэш массив
 			map.put(key, created);		
 			
 		} //else
 	} //set
 	
+	//вывод двусвязного списка на экран
 	public void dump() {
 		System.out.print("cnt: " + this.cnt + " (cap: " + this.capacity + "): ");
 		
