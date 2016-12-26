@@ -126,16 +126,20 @@ public class Lru<Value> {
 		cnt++;
 	} //addHead
 	
-	//вконце малопопулярный блок
-	protected void addColdUnPop(Node n) {
-		//удаляем конец
-		
+	//удаляем конца списка
+	private void delEnd() {
 		//из хэш массива
 		map.remove(this.end.key);
 		
 		//и делаем концом списка = предыдущий элемент
 		this.end = this.end.prev;
 		this.end.next = null;
+	} //delEnd
+	
+	//вконце малопопулярный блок
+	protected void addColdUnPop(Node n) {
+		//удаляем конец
+		delEnd();
 		
 		//у старой середины изменяем счетчик на 1
 		if(this.cold.swaped) {
@@ -166,9 +170,8 @@ public class Lru<Value> {
 		//открепляем конец
 		Node n = this.end;
 		
-		//и делаем концом списка = предыдущий элемент
-		this.end = this.end.prev;
-		this.end.next = null;
+		//удаляем конец
+		delEnd();
 		
 		//конец перемещаем в начало
 		n.prev = null;
