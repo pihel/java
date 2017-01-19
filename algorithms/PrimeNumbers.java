@@ -89,16 +89,18 @@ public class PrimeNumbers {
        public static void print_eratosfen2(int max_num) {
              int cnt_iterat = 0;
             
-             boolean isPrime[] = new boolean[max_num/2 + 1];
+             boolean isPrime[] = new boolean[max_num/2];
              Arrays.fill(isPrime,true);
             
-             //все должно делиться на числа до корня
-             for (int i=3; i < Math.sqrt(max_num) + 1; i = i + 2) {
+             //все должно делиться на числа до корня (кроме четных)
+             for (int i=3; i < Math.sqrt(max_num); i = i + 2) {
                     if (isPrime[(i-1)/2]) {
-                           //помечаем числа кратные простому
-                           for (int j=i*i; j <= max_num; j+=i) {
-                                  isPrime[(j-1)/2] = false;
-                                  cnt_iterat++;
+                       //помечаем числа кратные простому (кроме четных)
+                       for (int j=i*i; j <= max_num; j+=i) {
+                              if(j%2 != 0) {
+                            	  isPrime[(j-1)/2] = false;
+                              }
+                              cnt_iterat++;
                         }
                     } else {
                            cnt_iterat++;
@@ -106,20 +108,19 @@ public class PrimeNumbers {
                          
              }
              //довыводим массив с корня до конца
-             //1 3 5 7 13 19 25 31 37 43 49 55 61 67 73 79 85 91 97 101
-             for (int i=0; i < isPrime.length; i++) {
-                    //if(isPrime[i]) System.out.print(i*2+1 + " ");
-                    if(isPrime[i]) System.out.print(i + " ");
+             System.out.print("1 2 ");
+             for (int i=1; i < isPrime.length; i++) {
+                    if(isPrime[i]) System.out.print(i*2+1 + " ");
                     cnt_iterat++;
              }
              System.out.println("(" +cnt_iterat+ ")");
        } //print_eratosfen2
  
        public static void main(String[] args) {
-             print_n2(1000);
-             print_sqrt(1000);
-             print_eratosfen(1000);
-             print_eratosfen2(100);
+             print_n2			(100);
+             print_sqrt			(100);
+             print_eratosfen	(100);
+             print_eratosfen2	(100);
        }
  
 }
