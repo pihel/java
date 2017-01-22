@@ -114,12 +114,22 @@ public class PrimeNumbers {
              }
              System.out.println("(" +cnt_iterat+ ")");
        } //print_eratosfen2
+       
+       public static void fizzbuzz() {
+    	   for(int i = 1; i<= 100; i++) {
+    		   if(i%3 == 0 && i%5 == 0) System.out.print("FizzBuzz ");
+    		   else if(i%3 == 0) System.out.print("Fizz ");
+    		   else if(i%5 == 0) System.out.print("Buzz ");
+    		   else System.out.print(i + " ");
+    	   }
+       } //fizzbuzz
  
        public static void main(String[] args) {
              print_n2			(100);
              print_sqrt			(100);
              print_eratosfen	(100);
              print_eratosfen2	(100);
+             fizzbuzz();
        }
  
 }
