@@ -66,10 +66,10 @@ public class PrimeNumbers {
              //все должно делиться на числа до корня
              for (int i=2; i < Math.sqrt(max_num) + 1; i++) {
                     if (isPrime[i]) {
-                           //помечаем числа кратные простому
-                           for (int j=i*i; j <= max_num; j+=i) {
-                                  isPrime[j] = false;
-                                  cnt_iterat++;
+                        //помечаем числа кратные простому
+                        for (int j=i*i; j <= max_num; j+=i) {
+		                    isPrime[j] = false;
+		                    cnt_iterat++;
                         }
                     } else {
                            cnt_iterat++;
@@ -96,11 +96,10 @@ public class PrimeNumbers {
              for (int i=3; i < Math.sqrt(max_num); i = i + 2) {
                     if (isPrime[(i-1)/2]) {
                        //помечаем числа кратные простому (кроме четных)
-                       for (int j=i*i; j <= max_num; j+=i) {
-                              if(j%2 != 0) {
-                            	  isPrime[(j-1)/2] = false;
-                              }
-                              cnt_iterat++;
+                    	//шагаем через раз, т.к. 2*нечетное = четное
+                       for (int j=i*i; j <= max_num; j+=i*2) {
+                            isPrime[(j-1)/2] = false;
+                            cnt_iterat++;
                         }
                     } else {
                            cnt_iterat++;
