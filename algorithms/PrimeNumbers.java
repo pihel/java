@@ -122,7 +122,18 @@ public class PrimeNumbers {
     		   else if(i%5 == 0) System.out.print("Buzz ");
     		   else System.out.print(i + " ");
     	   }
+    	   System.out.println(" ");
        } //fizzbuzz
+       
+       public static void fizzbuzz2() {
+    	   for(int i = 1; i<= 100; i++) {
+    		   if(i%3 == 0) System.out.print("Fizz");
+    		   if(i%5 == 0) System.out.print("Buzz");
+    		   if(i%3 != 0 && i%5 != 0) System.out.print(i);
+    		   System.out.print(" ");
+    	   }
+    	   System.out.println(" ");
+       } //fizzbuzz2
  
        public static void main(String[] args) {
              print_n2			(100);
@@ -130,6 +141,7 @@ public class PrimeNumbers {
              print_eratosfen	(100);
              print_eratosfen2	(100);
              fizzbuzz();
+             fizzbuzz2();
        }
  
 }
