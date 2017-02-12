@@ -1,5 +1,6 @@
 package Hash;
 
+import java.io.*;
 import java.util.HashMap;
 
 interface idistinct {
@@ -66,58 +67,99 @@ class AproxDist implements idistinct {
     }
    
     public void set(String word) {
-          int hash = fnv1a(word);
-          int k = hash >>> 24; //убираем 24 бита из 32 справа - остается 8 левых (=256 разных значений)
-        hashes[k] = Math.max(hashes[k], rank(hash, 24)); //если коллизия, то выберем наибольший ранк
+		int hash = fnv1a(word);
+		int k = hash >>> 24; //убираем 24 бита из 32 справа - остается 8 левых (=256 разных значений)
+		hashes[k] = Math.max(hashes[k], rank(hash, 24)); //если коллизия, то выберем наибольший ранк
     } //count
+    
+    public int get_log() {
+        double max_rank = 0;
+       
+        for(int i = 0; i < hashes.length; i++) {
+        	max_rank = Math.max(hashes[i], max_rank);
+        }
+        
+        return (int) Math.pow(2, max_rank);
+  }
+    
+    public double get_loglog() {
+    	double count = 0;
+       
+        for(int i = 0; i < hashes.length; i++) {
+      	  count += 1 / Math.pow(2, hashes[i]);
+        }
+       
+        return 47072.7126712022335488 / count;
+  }
    
-    public int get() {
-          double count = 0;
-          int pow_2_32 = (0xFFFFFFFF + 1);
+    public int get() { //super_loglog
+          long pow_2_32 = 4294967296L;
          
-          for(int i = 0; i < hashes.length; i++) {
-                 count = count + 1 / Math.pow(2, hashes[i]);
-          }
-         
-          double E = 0.7182725932495458 * 256 * 256 / count;
-         
-          if (E <= 5/2 * 256) {
-         int V = 0;
-         for (int i = 0; i < 256; i++) {
-         if (hashes[i] == 0) {
-                 V++;
-         }
-         }
-         if (V > 0) {
-         E = 256 * Math.log(256 / V);
-         }
-     } else if (E > 1/30 * pow_2_32) {
-          E = -pow_2_32 * Math.log(1 - E / pow_2_32);
-     }
-         
-          return (int) Math.round(count);
+          double E = get_loglog();
+          
+          //коррекция
+          if (E <= 640) {
+	         int V = 0;
+	         for (int i = 0; i < 256; i++) {
+		         if (hashes[i] == 0) {
+		                 V++;
+		         }
+	         }
+	         if (V > 0) {
+	        	 E = 256 * Math.log((256 / (double)V));
+	         }
+	         
+	     } else if (E > 1/30 * pow_2_32) {
+	          E = -pow_2_32 * Math.log(1 - E / pow_2_32);
+	     }
+          //конец коррекции
+          
+          return (int) Math.round(E);
     }
 
 } //AproxDist
 
 public class Distinct {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         //System.out.println(Long.toBinaryString( fnv1a("abyssinian") ));
        
         //наибольший ранг =~ числу уникальных значений
        
-        //System.out.println(m); //256
-        //System.out.println(alpha_m); //0.7182725932495458
-        //System.out.println(k_comp); //24
        
-       
-        //AproxDist ad = new AproxDist();
-        RealDist ad = new RealDist();
-        ad.set("aardvark");
-        ad.set("abyssinian");
-        ad.set("zoology");
-        ad.set("abyssinian");
-        System.out.println(ad.get());
-        System.out.println(ad.getWordCount("abyssinian"));         
+    	RealDist rd = new RealDist();
+    	AproxDist ad = new AproxDist();
+    	
+    	BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\007\\workspace\\oracle_sort\\src\\Hash\\book.txt"));
+    	try {
+    	    String line = br.readLine();
+
+    	    while (line != null) {
+    	    	String[] split = line.split(" ");
+    	    	for (String word : split) {
+    	    		ad.set(word);
+    	    		rd.set(word);
+				}
+    	    	
+    	        line = br.readLine();
+    	    }
+    	} finally {
+    	    br.close();
+    	}
+    	/*ad.set("aardvark");
+    	ad.set("abyssinian");
+    	ad.set("zoology");
+    	ad.set("zoology");*/
+    	
+    	System.out.println("real distinct = " + rd.get());
+        System.out.println("aprox distinct(log) = " + ad.get_log());
+        System.out.println("aprox distinct(loglog) = " + Math.round( ad.get_loglog() ));
+        System.out.println("aprox distinct(superlolog) = " + ad.get());
+        
+        /*
+         * real distinct = 3737
+			aprox distinct(log) = 16384
+			aprox distinct(loglog) = 3965
+			aprox distinct(superlolog) = 3965
+         * */
   }
 }
