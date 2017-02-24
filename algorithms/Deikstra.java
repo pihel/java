@@ -2,25 +2,7 @@ package algorithms;
 
 import java.util.*;
 
-public class Deikstra {
-	// список смежности + веса
-	/*class GraphList {
-		// точка
-		int pnt;
-
-		// смежные точки
-		ArrayList<Integer> pnts;
-		// смежные веса ребер: точка - вес
-		HashMap<Integer, Integer> rbr;
-
-		public GraphList(int point, ArrayList p, HashMap r) {
-			pnt = point;
-			rbr = r;
-			pnts = p;
-		} // GraphList
-	} // GraphList
-	*/
-	
+public class Deikstra {	
 	class Rebro {
 		Integer to_point;
 		Double weight;
