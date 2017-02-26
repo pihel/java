@@ -52,35 +52,43 @@ public class Deikstra {
 			graph.add(new ArrayList<Rebro>());
 		}
 		
+		//заполним все точки как недостижимые
 		distance = new Distance[graph.size()];
 		for(int i = 0; i < distance.length; i++) {
 			distance[i] = new Distance(); 
 		}
+		//растояние до начальной точки = 0
 		distance[from_point].dist = 0.0;
 		
+		//запускаем бесконечный цикл
 		Integer point = from_point;
-		while( point >= 0 ) {
+		while( true ) {
 			
-			//get min point
+			//найдем точку с минимальным расстоянием из необработанных (для первой итерации - это начальная точка)
 			point = -1;
 			Double min_distance = Double.MAX_VALUE;
+			//обходим все точки из необработанного множества (processed)
 			for(int p = 0; p < distance.length; p++) {
+				//выбираем с наименьшей дистанцией
 				if(!distance[p].processed && distance[p].dist < min_distance) {
 					min_distance = distance[p].dist;
 					point = p;
 				}
 			}
-			if(point < 0) continue;
+			//если пути дальше нет, то выходим
+			if(point < 0) break;
 			
-			//calc min dist
+			//получаем все исходящии ребра
 			ArrayList<Rebro> rbrs = graph.get(point);
+			//обходим их
 			for(int r = 0; r < rbrs.size(); r++) {
+				//если текущая дистация до соседней точки > дистанция до текущей точки + длина ребра , то обновляем дистанцию
 				if(distance[rbrs.get(r).to_point].dist > ( distance[point].dist + rbrs.get(r).weight ) ) {
 					distance[rbrs.get(r).to_point].dist =  distance[point].dist + rbrs.get(r).weight;
 				}
 			}
 			
-			//set min point processed
+			//минимальная точка обработана
 			distance[point].processed = true;
 		}
 		
