@@ -44,10 +44,10 @@ class AproxDist implements iDistinct {
 	} //AproxDist
 
 	public static int fnv1a(String text) {
-		int hash = 1092394437;
+		int hash = 0x811c9dc5;
 		for (int i = 0; i < text.length(); ++i) {
-			hash ^= text.charAt(i);
-			hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+			hash ^= (text.charAt(i) & 0xff);
+		    hash *= 16777619;
 		}
 		return hash >>> 0;
 	} //fnv1a
@@ -159,7 +159,7 @@ public class Distinct {
 
 		System.out.println("real distinct = " + rd.get()); //3737
 		System.out.println("aprox distinct(log) = " + ad.get_log()); //16384
-		System.out.println("aprox distinct(loglog) = " + Math.round(ad.get_loglog())); //3965
-		System.out.println("aprox distinct(superlolog) = " + ad.get()); //3965
+		System.out.println("aprox distinct(loglog) = " + Math.round(ad.get_loglog())); //3676
+		System.out.println("aprox distinct(superlolog) = " + ad.get()); //3676
 	}
 }
