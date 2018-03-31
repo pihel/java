@@ -44,13 +44,26 @@ class Node {
 		}*/
 	} //Node
 	
+	public void reverse() {
+		Node prev = null;
+		while(root != null) {
+			Node rnext = root.next;
+			root.next = prev;
+			prev = root;
+			root = rnext;
+		}
+		root = prev;
+	} //reverse
+	
 	//печать списка
 	public void print() {
-		root = this;
+		Node r = root;
 		while(root != null) {
 			System.out.print(root.val + ", ");
 			root = root.next;
 		}
+		root = r;
+		System.out.println("");
 	} //print
 }
 
@@ -501,21 +514,31 @@ public class OracleSort extends MergeSort {
 
 	public static void main(String[] args) {
 		
-		JUnitCore runner = new JUnitCore();
+		/*JUnitCore runner = new JUnitCore();
 		Result result = runner.run(OracleSortTest.class);
 		System.out.println("run tests: " + result.getRunCount());
 		System.out.println("failed tests: " + result.getFailureCount());
 		System.out.println("ignored tests: " + result.getIgnoreCount());
-		System.out.println("success: " + result.wasSuccessful());
+		System.out.println("success: " + result.wasSuccessful());*/
 		
-		/*Integer arr[] = {2, 6, 3, 5, 1, 7, 8, 0, 27, 17, 99, 13, 1, 7};
+		Integer arr[] = {2, 6, 3, 5, 1, 7, 8, 0, 27, 17, 99, 13, 1, 7};
 		
 		System.out.println(Arrays.toString(arr));
+		
+		Node list = new Node(arr);
+		list.print();
+		list.print();
+		System.out.println("reverse:");
+		list.reverse();
+		list.print();
+		System.out.println("reverse:");
+		list.reverse();
+		list.print();
 		
 		//Arrays.sort(arr);
 		//Sorts.bubleSort(arr);
 		//Sorts.insertSort(arr);
-		Sorts.InsertSortList( new Node(arr) ).print();
+		//Sorts.InsertSortList( new Node(arr) ).print();
 		
 		//(new Tree(arr)).traverse();
 		
@@ -527,10 +550,10 @@ public class OracleSort extends MergeSort {
 		
 		//new OracleSort(5, 2).sort(arr);
 		
-		System.out.println(Arrays.toString(arr));
+		//System.out.println(Arrays.toString(arr));
 		
-		System.out.println("7=" + Sorts.binary_search(arr, 7));
-		System.out.println("73=" + Sorts.binary_search(arr, 73));*/
+		//System.out.println("7=" + Sorts.binary_search(arr, 7));
+		//System.out.println("73=" + Sorts.binary_search(arr, 73));
 	}
 
 }
