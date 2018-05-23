@@ -1,6 +1,5 @@
 package algorithms;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class Heap<T extends Comparable<T>> {
@@ -52,11 +51,15 @@ public class Heap<T extends Comparable<T>> {
 		
 		int len = a.length;
 		
-		for(int i = len-1; i >= 0; i--) {
+		//меняем 1 (наибольший) и последний элемент местами
+		//в следующей итерации меняем предпоследний и т.д.
+		for(int i = len-1; i >= 0; i--) { //n
 			T temp = a[0];
 			a[0] = a[i];
 			a[i] = temp;
 			
+			//восстанавливаем свойства кучи для 0 элемента (должен стать максимальным) = log(n)
+			//i - позиция с конца = длинне массива для переупорядочивания (т.е. максимальные элементы пропускаем)
 			heapify(a, i, 0);
 		}
 	}

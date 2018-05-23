@@ -130,6 +130,7 @@ class MemSSTable {
 		indx = new SSTableIndex();
 	}
 	
+	//из-за хэша нет поиска по диапазону
 	HashMap<Integer, SSItem> itms = new HashMap<Integer, SSItem>();
 	
 	//простой вариант без фоновых заданий и асинхронных вызовов
@@ -161,6 +162,8 @@ class MemSSTable {
 		if(itms.size() >= LSMTree.max_sstable_size) {
 			try {
 				//то сохраняем таблицу на диск
+				//в реальных движках используется упреждающая фоновая запись
+				//когда папять заполнена на N% (n<100), то данные скидываются на диск заранее, чтобы избежать фриза при сбросе памяти и записи на диск
 				SaveToDisk();
 			} catch (FileNotFoundException | UnsupportedEncodingException e) {
 				e.printStackTrace();
@@ -177,6 +180,7 @@ class MemSSTable {
 		SSItem itm = new SSItem(k, v, indx.max_lsn);
 		
 		//в моей реализации, при повторе ключ перезаписывается
+		//т.е. транзакционность и многоверсионность тут не поддерживается
 		itms.put(k,  itm);
 		
 	} //add
@@ -288,7 +292,8 @@ public class LSMTree {
 			
 			RandomAccessFile file = new RandomAccessFile(indx.path, "r");
 			
-			//рандомно читаем ключи
+			//т.к. данные в таблицах не упорядочены, это приводит к рандомным чтениям с диска
+			//в реальности делают упорядочнный по ключу массив, чтобы делать быстрые последовательные чтения
 			for(Entry<Integer, Integer> entry : indx.keys.entrySet()) {
 				//оставляем запись только с максимальным lsn
 				Integer key = entry.getKey();
